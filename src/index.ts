@@ -1,6 +1,7 @@
 import { serve } from "bun";
 import index from "./index.html";
 import { handleGetTransactions } from "./api/handlers/transactions";
+import { handleGetFilterOptions } from "./api/handlers/filterOptions";
 import { handleExport } from "./api/handlers/export";
 
 const server = serve({
@@ -9,6 +10,10 @@ const server = serve({
 
     "/api/transactions": {
       GET: handleGetTransactions,
+    },
+
+    "/api/transactions/filter-options": {
+      GET: handleGetFilterOptions,
     },
 
     "/api/transactions/export": {

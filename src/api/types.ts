@@ -6,6 +6,8 @@ export type TransactionColumn = keyof TransactionRow;
 
 export type SortOrder = "asc" | "desc";
 
+export type FilterableColumn = "method" | "network" | "buyCurrency" | "sellCurrency";
+
 export interface ParsedQueryParams {
   page: number;
   limit: number;

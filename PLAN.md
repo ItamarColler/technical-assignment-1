@@ -20,11 +20,11 @@
 
 | #   | Feature                              | Priority     | Status         |
 | --- | ------------------------------------ | ------------ | -------------- |
-| 1   | Server-side paginated data table     | Required     | ✅ Backend done |
+| 1   | Server-side paginated data table     | Required     | ✅ Done |
 | 2   | Excel export (zero third-party deps) | Required     | 🟡 Route stub (Phase 4) |
-| 3   | Responsive layout                    | Required     | ⬜ Not started |
-| 4   | Column sorting                       | Nice to have | ⬜ Not started |
-| 5   | Column filtering                     | Nice to have | ⬜ Not started |
+| 3   | Responsive layout                    | Required     | ✅ Done (overflow-x-auto + hidden columns) |
+| 4   | Column sorting                       | Nice to have | ✅ Done |
+| 5   | Column filtering                     | Nice to have | ✅ Done |
 
 ---
 
@@ -82,7 +82,30 @@ Expose a paginated, sortable, and filterable transactions endpoint, plus a full-
 
 Render transactions in a table with pagination controls, sort headers, and per-column filters.
 
-**Status:** ⬜ Not started
+**Status:** ✅ Complete
+
+#### Key files
+| File | Role |
+| --- | --- |
+| `src/lib/formatters.ts` | Pure display formatters: `formatDate`, `formatAmount`, `truncateHash` |
+| `src/hooks/filter.ts` | `useFilterQuery<T>` — generic fetch hook; owns `params` state, exposes `setFilter`, `clearFilters`, `setSort`, `setPage`; debounce 300ms + AbortController |
+| `src/hooks/filter.utils.ts` | `buildFilterUrl(baseUrl, params)`, `fetchFilterOptions(url, set, signal)` |
+| `src/components/DataTable/types.ts` | `Cell<T>`, `FilterDTO`, `FilterNode`, `SortOrder` |
+| `src/components/DataTable/DataTable.tsx` | Generic table; calls `col.render(row)`; sort handled via `sortBy`/`sortOrder` props |
+| `src/components/DataTable/FilterBar.tsx` | Controlled dropdowns; props: `setFilter(key, label, value)`, `clearFilters()` |
+| `src/components/TransactionsTable/TransactionsTable.tsx` | Thin orchestrator — no local state; wires hook setters directly to children |
+| `src/components/TransactionsTable/config/columns.config.tsx` | `COLUMNS: Cell<TransactionRow>[]` — maps each column to its cell component |
+| `src/components/TransactionsTable/config/columns/` | One file per cell component: `DateCell`, `MethodCell`, `NetworkCell`, `BuyAmountCell`, `SellAmountCell`, `FeeAmountCell`, `TxHashCell` |
+| `src/components/TransactionsTable/config/filter.config.ts` | `TRANSACTION_FILTERS`, `SORT_CONFIG`, `API_CONFIG` (env-backed URLs) |
+| `src/components/pagination.tsx` | Page controls with smart ellipsis + "X–Y of Z" label |
+| `src/components/ExportButton.tsx` | Amber outline button → `/api/transactions/export` download |
+
+#### Conventions
+- **Sort:** `FilterDTO` uses explicit `sortBy: string` + `sortOrder: "asc" | "desc"` — no `"-date"` prefix encoding
+- **Columns:** `Cell<T>` with `key: keyof T & string`; `render(row)` receives full row; no `getValue`
+- **Column files:** PascalCase named exports (`DateCell`, not `DATE_COLUMN`), self-contained with all styles inline
+- **Hook config:** `QUERY_CONFIG` declared at module scope (stable reference); URLs sourced from `.env` via `API_CONFIG`
+- **Imports:** all config exports surface through `./config` barrel; all cell components through `./columns` barrel
 
 ---
 
@@ -141,3 +164,4 @@ Code quality pass (`/simplify`), security review of API inputs (`/security-revie
 | ---------- | --------------------------------- |
 | 2026-05-07 | Plan created — ready to implement |
 | 2026-05-07 | Phase 1 backend plan completed — 6 new files, 1 modified, implementation order defined |
+| 2026-05-07 | Phase 2 data table UI complete — 5 new files, 4 modified |

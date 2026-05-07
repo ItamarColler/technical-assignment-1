@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__context7__query-docs",
+      "mcp__context7__resolve-library-id",
+      "Bash(Remove-Item \"C:\\\\Users\\\\user\\\\Visual-Studio-Code\\\\technical-assignment\\\\src\\\\hooks\\\\useTransactions.ts\")",
+      "Bash(Remove-Item \"C:\\\\Users\\\\user\\\\Visual-Studio-Code\\\\technical-assignment\\\\src\\\\hooks\\\\transactionsUtils.ts\")"
+    ]
+  }
+}
