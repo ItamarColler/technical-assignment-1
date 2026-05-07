@@ -1,8 +1,5 @@
-import { formatAmount } from "@/lib/formatters";
-import type React from "react";
+import { AmountCell } from "./amountCell";
 
-export const BuyAmountCell: React.FC<{ buyAmount: number | null; buyCurrency: string | null }> = ({ buyAmount, buyCurrency }) => (
-  <span className="font-mono text-xs text-emerald-400">
-    {formatAmount(buyAmount, buyCurrency)}
-  </span>
+export const BuyAmountCell = ({ buyAmount, buyCurrency }: { buyAmount: number | null; buyCurrency: string | null }) => (
+  <AmountCell amount={buyAmount} currency={buyCurrency} colorClass="text-emerald-400" />
 );

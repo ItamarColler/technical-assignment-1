@@ -17,6 +17,15 @@ export function formatAmount(amount: number | null, currency: string | null): st
   return currency ? `${formatted} ${currency}` : formatted;
 }
 
+export function formatAmountShort(amount: number | null, currency: string | null): string {
+  if (amount == null) return "—";
+  const formatted = amount.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 6,
+  });
+  return currency ? `${formatted} ${currency}` : formatted;
+}
+
 export function truncateHash(hash: string | null): string {
   if (!hash) return "—";
   if (hash.length <= 16) return hash;

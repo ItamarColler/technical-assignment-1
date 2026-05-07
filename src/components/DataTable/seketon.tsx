@@ -3,11 +3,21 @@ import { cn } from "@/lib/utils";
 interface ColInfo {
   key: string;
   mobileHidden?: boolean;
+  width?: string;
 }
 
 export function SkeletonTable({ columns }: { columns: ColInfo[] }) {
   return (
-    <table className="w-full min-w-[640px] border-collapse text-sm">
+    <table className="w-full min-w-[930px] border-collapse text-sm [table-layout:fixed]">
+      <colgroup>
+        {columns.map(col => (
+          <col
+            key={col.key}
+            style={col.width ? { width: col.width } : undefined}
+            className={col.mobileHidden ? "hidden md:table-column" : undefined}
+          />
+        ))}
+      </colgroup>
       <thead>
         <tr className="border-b border-border">
           {columns.map(col => (

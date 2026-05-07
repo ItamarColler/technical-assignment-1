@@ -20,6 +20,6 @@ export const SORT_CONFIG = {
 } as const;
 
 export const API_CONFIG = {
-  url: process.env.TRANSACTIONS_URL ?? "/api/transactions",
-  filterOptionsUrl: process.env.TRANSACTIONS_FILTER_OPTIONS_URL ?? "/api/transactions/filter-options",
+  url: process.env.BUN_PUBLIC_TRANSACTIONS_URL ?? "/api/transactions",
+  filterOptionsUrl: process.env.BUN_PUBLIC_TRANSACTIONS_FILTER_OPTIONS_URL ?? "/api/transactions/filter-options",
 } as const;

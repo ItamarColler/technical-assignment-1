@@ -12,6 +12,8 @@ interface DataTableProps<T extends { id: number | string }> {
   isLoading: boolean;
   hasLoaded: boolean;
   error: string | null;
+  onRowClick?: (row: T) => void;
+  selectedId?: number | string | null;
 }
 
 export function DataTable<T extends { id: number | string }>({
@@ -23,6 +25,8 @@ export function DataTable<T extends { id: number | string }>({
   isLoading,
   hasLoaded,
   error,
+  onRowClick,
+  selectedId,
 }: DataTableProps<T>) {
   function handleSort(key: string) {
     if (sortBy === key) {
@@ -48,7 +52,16 @@ export function DataTable<T extends { id: number | string }>({
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full min-w-[640px] border-collapse text-sm">
+      <table className="w-full min-w-[930px] border-collapse text-sm [table-layout:fixed]">
+        <colgroup>
+          {columns.map(col => (
+            <col
+              key={col.key}
+              style={col.width ? { width: col.width } : undefined}
+              className={col.mobileHidden ? "hidden md:table-column" : undefined}
+            />
+          ))}
+        </colgroup>
         <thead>
           <tr className="border-b border-border">
             {columns.map(col => (
@@ -85,15 +98,21 @@ export function DataTable<T extends { id: number | string }>({
             data.map((row, i) => (
               <tr
                 key={row.id}
+                onClick={() => onRowClick?.(row)}
                 className={cn(
-                  "border-b border-border/50 transition-colors hover:bg-muted/40",
-                  i % 2 === 0 && "bg-muted/20"
+                  "border-b border-border/50 transition-colors",
+                  onRowClick && "cursor-pointer",
+                  row.id === selectedId
+                    ? "bg-amber-500/10 ring-1 ring-inset ring-amber-500/30"
+                    : i % 2 === 0
+                      ? "bg-muted/20 hover:bg-amber-500/5"
+                      : "hover:bg-amber-500/5"
                 )}
               >
                 {columns.map(col => (
                   <td
                     key={col.key}
-                    className={cn("px-4 py-2.5", col.mobileHidden && "hidden md:table-cell")}
+                    className={cn("px-4 py-2.5 overflow-hidden", col.mobileHidden && "hidden md:table-cell")}
                   >
                     {col.render(row)}
                   </td>
