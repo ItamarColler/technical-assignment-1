@@ -1,37 +1,18 @@
 import { serve } from "bun";
 import index from "./index.html";
-import { db } from "./api/database";
+import { handleGetTransactions } from "./api/handlers/transactions";
+import { handleExport } from "./api/handlers/export";
 
 const server = serve({
   routes: {
-    // Serve index.html for all unmatched routes.
     "/*": index,
 
-    "/api/hello": {
-      async GET(req) {
-        return Response.json({
-          message: "Hello, world!",
-          method: "GET",
-        });
-      },
-      async PUT(req) {
-        return Response.json({
-          message: "Hello, world!",
-          method: "PUT",
-        });
-      },
+    "/api/transactions": {
+      GET: handleGetTransactions,
     },
 
-    "/api/hello/:name": async (req) => {
-      const name = req.params.name;
-      return Response.json({
-        message: `Hello, ${name}!`,
-      });
-    },
-
-    "/api/data": async (req) => {
-      const trxs = await db.query.transactions.findMany();
-      return Response.json(trxs);
+    "/api/transactions/export": {
+      GET: handleExport,
     },
   },
 
