@@ -1,4 +1,5 @@
-import type { ParsedQueryParams, SortOrder, TransactionColumn } from "../types";
+import type { ParsedQueryParams, TransactionColumn } from "../types";
+import type { SortEntry, SortOrder } from "./filter/filter.types";
 
 const ALLOWED_COLUMNS = new Set<TransactionColumn>([
   "id", "method", "buyAmount", "buyCurrency", "buyToken",
@@ -22,31 +23,31 @@ export function parseQueryParams(url: URL): ValidationResult {
   if (isNaN(rawLimit) || rawLimit < 1) return { ok: false, error: "limit must be a positive integer" };
   const limit = Math.min(rawLimit, 100);
 
-  const rawSortBy = raw.get("sortBy") ?? "date";
-  if (!ALLOWED_COLUMNS.has(rawSortBy as TransactionColumn)) {
-    return { ok: false, error: `sortBy must be one of: ${[...ALLOWED_COLUMNS].join(", ")}` };
+  const rawSort = raw.getAll("sort");
+  const sort: SortEntry[] = [];
+  for (const entry of rawSort) {
+    const [by, order] = entry.split(":");
+    if (!by || !ALLOWED_COLUMNS.has(by as TransactionColumn)) {
+      return { ok: false, error: `sort field "${by}" must be one of: ${[...ALLOWED_COLUMNS].join(", ")}` };
+    }
+    if (order !== "asc" && order !== "desc") {
+      return { ok: false, error: `sort order for "${by}" must be asc or desc` };
+    }
+    sort.push({ by, order: order as SortOrder });
   }
-  const sortBy = rawSortBy as TransactionColumn;
+  if (sort.length === 0) sort.push({ by: "date", order: "desc" });
 
-  const rawSortOrder = raw.get("sortOrder") ?? "desc";
-  if (rawSortOrder !== "asc" && rawSortOrder !== "desc") {
-    return { ok: false, error: "sortOrder must be asc or desc" };
+  const searchTerm = (raw.get("searchTerm") ?? "").trim();
+
+  const filters: Record<string, string | undefined> = {};
+  for (const [key, value] of raw.entries()) {
+    const match = key.match(/^filter\[(.+)\]$/);
+    const field = match?.[1];
+    if (field && value) filters[field] = value;
   }
-  const sortOrder = rawSortOrder as SortOrder;
 
   return {
     ok: true,
-    params: {
-      page,
-      limit,
-      sortBy,
-      sortOrder,
-      filters: {
-        method: raw.get("filter[method]") ?? undefined,
-        network: raw.get("filter[network]") ?? undefined,
-        buyCurrency: raw.get("filter[buyCurrency]") ?? undefined,
-        sellCurrency: raw.get("filter[sellCurrency]") ?? undefined,
-      },
-    },
+    params: { page, limit, sort, searchTerm, filters },
   };
 }

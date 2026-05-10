@@ -1,24 +1,18 @@
 import type { transactions } from "./database/schema";
+import type { SortEntry } from "./lib/filter/filter.types";
 
 export type TransactionRow = typeof transactions.$inferSelect;
 
 export type TransactionColumn = keyof TransactionRow;
 
-export type SortOrder = "asc" | "desc";
-
-export type FilterableColumn = "method" | "network" | "buyCurrency" | "sellCurrency";
+export type { SortOrder } from "./lib/filter/filter.types";
 
 export interface ParsedQueryParams {
   page: number;
   limit: number;
-  sortBy: TransactionColumn;
-  sortOrder: SortOrder;
-  filters: {
-    method?: string;
-    network?: string;
-    buyCurrency?: string;
-    sellCurrency?: string;
-  };
+  sort: SortEntry[];
+  searchTerm: string;
+  filters: Record<string, string | undefined>;
 }
 
 export interface PaginatedResponse<T> {

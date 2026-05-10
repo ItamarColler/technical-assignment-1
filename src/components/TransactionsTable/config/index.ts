@@ -1,2 +1,2 @@
 export * from "./columns.config";
-export * from "./filter.config";
+export * from "./filter";

@@ -1,13 +1,13 @@
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SkeletonTable } from "./seketon";
-import type { Cell, SortOrder } from "./types";
+import type { Cell } from "./types";
+import type { SortEntry, SortOrder } from "@/api/lib/filter/filter.types";
 
 interface DataTableProps<T extends { id: number | string }> {
   columns: Cell<T>[];
-  sortBy: string;
-  sortOrder: SortOrder;
-  onSort: (sortBy: string, sortOrder: SortOrder) => void;
+  sort: SortEntry[];
+  onSort: (sort: SortEntry[]) => void;
   data: T[];
   isLoading: boolean;
   hasLoaded: boolean;
@@ -18,8 +18,7 @@ interface DataTableProps<T extends { id: number | string }> {
 
 export function DataTable<T extends { id: number | string }>({
   columns,
-  sortBy,
-  sortOrder,
+  sort,
   onSort,
   data,
   isLoading,
@@ -28,11 +27,34 @@ export function DataTable<T extends { id: number | string }>({
   onRowClick,
   selectedId,
 }: DataTableProps<T>) {
-  function handleSort(key: string) {
-    if (sortBy === key) {
-      onSort(key, sortOrder === "desc" ? "asc" : "desc");
+  function handleSort(key: string, isMulti: boolean) {
+    const existingIndex = sort.findIndex(s => s.by === key);
+
+    if (!isMulti) {
+      // Single click: replace entire sort with this column
+      if (existingIndex !== -1) {
+        const current = sort[existingIndex];
+        onSort([{ by: key, order: current?.order === "desc" ? "asc" : "desc" }]);
+      } else {
+        onSort([{ by: key, order: "desc" }]);
+      }
+      return;
+    }
+
+    // Shift+click: add/toggle/remove from multi-sort list
+    if (existingIndex !== -1) {
+      const current = sort[existingIndex];
+      if (current?.order === "desc") {
+        // Toggle to asc
+        const next = [...sort];
+        next[existingIndex] = { by: key, order: "asc" };
+        onSort(next);
+      } else {
+        // Remove from sort
+        onSort(sort.filter((_, i) => i !== existingIndex));
+      }
     } else {
-      onSort(key, "desc");
+      onSort([...sort, { by: key, order: "desc" }]);
     }
   }
 
@@ -64,24 +86,34 @@ export function DataTable<T extends { id: number | string }>({
         </colgroup>
         <thead>
           <tr className="border-b border-border">
-            {columns.map(col => (
-              <th
-                key={col.key}
-                onClick={() => handleSort(col.key)}
-                className={cn(
-                  "px-4 py-3 text-left text-xs font-medium tracking-wide select-none cursor-pointer transition-colors",
-                  col.mobileHidden && "hidden md:table-cell",
-                  sortBy === col.key
-                    ? "text-amber-400"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                <span className="inline-flex items-center gap-1">
-                  {col.label}
-                  <SortIcon colKey={col.key} sortBy={sortBy} sortOrder={sortOrder} />
-                </span>
-              </th>
-            ))}
+            {columns.map(col => {
+              const sortIndex = sort.findIndex(s => s.by === col.key);
+              const isActive = sortIndex !== -1;
+              const currentOrder = isActive ? sort[sortIndex]?.order : undefined;
+
+              return (
+                <th
+                  key={col.key}
+                  onClick={e => handleSort(col.key, e.shiftKey)}
+                  className={cn(
+                    "px-4 py-3 text-left text-xs font-medium tracking-wide select-none cursor-pointer transition-colors",
+                    col.mobileHidden && "hidden md:table-cell",
+                    isActive
+                      ? "text-amber-400"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <span className="inline-flex items-center gap-1">
+                    {col.label}
+                    <SortIcon
+                      isActive={isActive}
+                      order={currentOrder}
+                      index={sort.length > 1 ? sortIndex + 1 : undefined}
+                    />
+                  </span>
+                </th>
+              );
+            })}
           </tr>
         </thead>
         <tbody>
@@ -126,9 +158,16 @@ export function DataTable<T extends { id: number | string }>({
   );
 }
 
-function SortIcon({ colKey, sortBy, sortOrder }: { colKey: string; sortBy: string; sortOrder: SortOrder }) {
-  if (colKey !== sortBy) return <ArrowUpDown className="size-3 opacity-30" />;
-  return sortOrder === "desc"
-    ? <ArrowDown className="size-3 text-amber-400" />
-    : <ArrowUp className="size-3 text-amber-400" />;
+function SortIcon({ isActive, order, index }: { isActive: boolean; order?: SortOrder; index?: number }) {
+  if (!isActive) return <ArrowUpDown className="size-3 opacity-30" />;
+  return (
+    <span className="inline-flex items-center gap-0.5 text-amber-400">
+      {order === "desc"
+        ? <ArrowDown className="size-3" />
+        : <ArrowUp className="size-3" />}
+      {index !== undefined && (
+        <span className="text-[10px] font-bold leading-none">{index}</span>
+      )}
+    </span>
+  );
 }

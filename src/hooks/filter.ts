@@ -2,10 +2,10 @@ import { useState, useEffect, useRef } from "react";
 import type {
   FilterDTO,
   FilterNode,
-  SortOrder,
-} from "@/components/DataTable/types";
+  SortEntry,
+} from "@/api/lib/filter/filter.types";
 import type { PaginatedResponse } from "@/api/types";
-import { buildFilterUrl, fetchFilterOptions } from "./filter.utils";
+import { buildFilterUrl, fetchFilterOptions, buildFilterOptionsUrl } from "./filter.utils";
 
 export interface FilterQueryConfig {
   url: string;
@@ -31,9 +31,13 @@ export function useFilterQuery<T>(config: FilterQueryConfig) {
   useEffect(() => {
     if (!filterOptionsUrl) return;
     const controller = new AbortController();
-    fetchFilterOptions(filterOptionsUrl, setFilterOptions, controller.signal);
+    fetchFilterOptions(
+      buildFilterOptionsUrl(filterOptionsUrl, params.filters),
+      setFilterOptions,
+      controller.signal,
+    );
     return () => controller.abort();
-  }, [filterOptionsUrl]);
+  }, [filterOptionsUrl, params.filters]);
 
   useEffect(() => {
     if (timerRef.current) clearTimeout(timerRef.current);
@@ -81,15 +85,20 @@ export function useFilterQuery<T>(config: FilterQueryConfig) {
       ...prev,
       page: 1,
       filters: defaultParamsRef.current.filters,
+      searchTerm: defaultParamsRef.current.searchTerm,
     }));
   }
 
-  function setSort(sortBy: string, sortOrder: SortOrder) {
-    setParams((prev) => ({ ...prev, page: 1, sortBy, sortOrder }));
+  function setSort(sort: SortEntry[]) {
+    setParams((prev) => ({ ...prev, page: 1, sort }));
   }
 
   function setPage(page: number) {
     setParams((prev) => ({ ...prev, page }));
+  }
+
+  function setSearchTerm(searchTerm: string) {
+    setParams((prev) => ({ ...prev, page: 1, searchTerm }));
   }
 
   return {
@@ -106,5 +115,6 @@ export function useFilterQuery<T>(config: FilterQueryConfig) {
     clearFilters,
     setSort,
     setPage,
+    setSearchTerm,
   };
 }

@@ -1,12 +1,14 @@
-import type { FilterDTO } from "@/components/DataTable/types";
+import type { FilterDTO, FilterNode } from "@/api/lib/filter/filter.types";
 
 export function buildFilterUrl(baseUrl: string, params: FilterDTO): string {
   const url = new URL(baseUrl, window.location.origin);
 
   url.searchParams.set("page", String(params.page));
   url.searchParams.set("limit", String(params.limit));
-  url.searchParams.set("sortBy", params.sortBy);
-  url.searchParams.set("sortOrder", params.sortOrder);
+
+  for (const { by, order } of params.sort) {
+    url.searchParams.append("sort", `${by}:${order}`);
+  }
 
   if (params.searchTerm) {
     url.searchParams.set("searchTerm", params.searchTerm);
@@ -31,4 +33,12 @@ export async function fetchFilterOptions(
   } catch {
     // leave defaults
   }
+}
+
+export function buildFilterOptionsUrl(baseUrl: string, filters: FilterNode[]): string {
+  const url = new URL(baseUrl, window.location.origin);
+  for (const node of filters) {
+    if (node.value) url.searchParams.set(`filter[${node.key}]`, node.value);
+  }
+  return url.toString();
 }
