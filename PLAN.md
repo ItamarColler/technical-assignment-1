@@ -131,6 +131,23 @@ Implement XLSX file generation from scratch — no `xlsx`, `exceljs`, `sheetjs`,
 
 **Status:** ✅ Complete
 
+#### Architecture (post-refactor)
+
+| File | Role |
+| ------------------------------------------ | ------------------------------------------------------------------ |
+| `src/api/lib/excel/excel.types.ts` | `CellType`, `ColumnDef<T>` — shared types |
+| `src/api/lib/excel/xlsx.ts` | `ExcelFactory<M extends SQLiteTable>` — generic XLSX generator class |
+| `src/api/lib/excel/zip/zip.types.ts` | `ZipEntry` interface |
+| `src/api/lib/excel/zip/zip.ts` | `ZipBuilder` — fluent ZIP assembler with `static crc32` |
+| `src/api/lib/excel/zip/index.ts` | Barrel re-export |
+| `src/api/lib/excel/transactions/config.ts` | `TRANSACTION_COLUMNS` + `transactionExcelFactory` singleton |
+
+**Design patterns applied:**
+- **`ExcelFactory<M>`** — constructor takes `(table: M, columns: ColumnDef<InferSelectModel<M>>[])`. All XML builders (`buildContentTypes`, `buildRels`, `buildWorkbook`, `buildWorkbookRels`, `buildStyles`, `buildSheet`, `renderCell`, `msToExcelSerial`, `xmlEscape`, `cellAddr`, `colLetter`) are private. Single public method: `generate(rows, sheetName?)`.
+- **`ZipBuilder`** — utility class with fluent `add(name, content)` → `build()`. `crc32` is a `static` method. `CRC_TABLE`, `u16`, `u32` are private statics. `ZipEntry` lives in `zip.types.ts`.
+- **Strategy cell rendering** — `ColumnDef<T>.type` drives `renderCell` dispatch; no magic index constants.
+- **Configured singleton** — `transactionExcelFactory = new ExcelFactory(transactions, TRANSACTION_COLUMNS)`; callers never instantiate directly.
+
 ---
 
 ### Phase 5 — Polish & Review
@@ -225,3 +242,4 @@ Passed as `hasActive` prop — enables "Clear all" to light up when the user has
 | 2026-05-10 | Filter enhancements — text search, multi-column sort, generic URL parsing, FilterFactory searchFields, feeCurrency filter added               |
 | 2026-05-10 | Comments column replaces txHash; sort UX changed to binary toggle + × remove; sort URL changed to comma-separated; pagination limit set to 50 |
 | 2026-05-10 | Phase 4 XLSX export complete — zip.ts + xlsx.ts + 13 passing tests                                                                            |
+| 2026-05-10 | Refactored excel layer — ExcelFactory\<M\> class, ZipBuilder utility class, excel.types.ts, zip/ directory; 8 tests passing                    |
