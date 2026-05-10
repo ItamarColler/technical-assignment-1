@@ -7,7 +7,7 @@ import {
   BuyAmountCell,
   SellAmountCell,
   FeeAmountCell,
-  TxHashCell,
+  CommentsCell,
 } from "./columns";
 
 export const COLUMNS: Cell<TransactionRow>[] = [
@@ -50,10 +50,10 @@ export const COLUMNS: Cell<TransactionRow>[] = [
     render: row => <FeeAmountCell feeAmount={row.feeAmount} feeCurrency={row.feeCurrency} />,
   },
   {
-    key: "txHash",
-    label: "Tx Hash",
+    key: "comments",
+    label: "Comments",
     width: "130px",
     mobileHidden: true,
-    render: row => <TxHashCell txHash={row.txHash} />,
+    render: row => <CommentsCell comments={row.comments} />,
   },
 ];

@@ -23,8 +23,8 @@
 | 1   | Server-side paginated data table     | Required     | ✅ Done |
 | 2   | Excel export (zero third-party deps) | Required     | 🟡 Route stub (Phase 4) |
 | 3   | Responsive layout                    | Required     | ✅ Done (overflow-x-auto + hidden columns) |
-| 4   | Column sorting                       | Nice to have | ✅ Done |
-| 5   | Column filtering                     | Nice to have | ✅ Done |
+| 4   | Multi-column sorting                 | Nice to have | ✅ Done |
+| 5   | Column filtering + text search       | Nice to have | ✅ Done |
 
 ---
 
@@ -158,6 +158,44 @@ Code quality pass (`/simplify`), security review of API inputs (`/security-revie
 
 ---
 
+## Filter & Sort Architecture
+
+### Multi-column sort
+- **`SortEntry`** `{ by: string; order: "asc" | "desc" }` — replaces the old `sortBy + sortOrder` pair everywhere
+- **URL format:** repeated `sort=date:desc&sort=method:asc` params; parsed with `raw.getAll("sort")`
+- **DataTable UX:** click a column header to cycle tri-state (not sorted → desc → asc → removed from sort); `×` button inside active headers removes that column immediately; amber background + bottom border on active headers
+- **`setSort(SortEntry[])`** in hook guards against empty array — falls back to `defaultParams.sort`
+- **`clearFilters()`** resets sort + searchTerm + filters all together
+
+### Text search
+- **`searchTerm: string`** in `FilterDTO`; URL param `searchTerm=...`
+- **Backend:** `FilterFactory.buildConditions` applies `OR LIKE '%term%'` across each entry in `searchFields`; combined with AND filter conditions
+- **Transactions search fields:** `txHash`, `senderAddress`, `receiverAddress`
+- **Frontend:** debounced controlled `<Input>` in `FilterPanel`; clears via `×` button; amber border when active; syncs with `searchTerm` prop on external reset
+
+### FilterFactory search config
+Defined per-factory in the constructor via `FilterData.searchFields: string[]`:
+```ts
+// src/api/lib/filter/transactions/config.ts
+export const searchFields = ["txHash", "senderAddress", "receiverAddress"];
+```
+`FilterFactory.buildConditions(nodes, searchTerm?)` builds `or(like(col, '%term%'), ...)` when `searchTerm` is present.
+
+### Generic filter URL parsing
+`parseQueryParams` extracts all `filter[key]=value` params dynamically via regex — not hardcoded per field. Adding a new filterable column requires no changes to `validation.ts`.
+
+### FilterPanel `hasActive`
+Computed in the consumer (`TransactionsTable`), not inside `FilterPanel`:
+```ts
+const hasActive =
+  params.filters.some(f => f.value) ||
+  params.searchTerm.length > 0 ||
+  JSON.stringify(params.sort) !== JSON.stringify(defaultParams.sort);
+```
+Passed as `hasActive` prop — enables "Clear all" to light up when sort alone differs from default.
+
+---
+
 ## Progress Log
 
 | Date       | Update                            |
@@ -165,3 +203,4 @@ Code quality pass (`/simplify`), security review of API inputs (`/security-revie
 | 2026-05-07 | Plan created — ready to implement |
 | 2026-05-07 | Phase 1 backend plan completed — 6 new files, 1 modified, implementation order defined |
 | 2026-05-07 | Phase 2 data table UI complete — 5 new files, 4 modified |
+| 2026-05-10 | Filter enhancements — text search, multi-column sort, generic URL parsing, FilterFactory searchFields, feeCurrency filter added |

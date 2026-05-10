@@ -23,7 +23,7 @@ export function parseQueryParams(url: URL): ValidationResult {
   if (isNaN(rawLimit) || rawLimit < 1) return { ok: false, error: "limit must be a positive integer" };
   const limit = Math.min(rawLimit, 100);
 
-  const rawSort = raw.getAll("sort");
+  const rawSort = raw.get("sort")?.split(",").filter(Boolean) ?? [];
   const sort: SortEntry[] = [];
   for (const entry of rawSort) {
     const [by, order] = entry.split(":");

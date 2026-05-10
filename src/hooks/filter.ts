@@ -18,6 +18,7 @@ export function useFilterQuery<T>(config: FilterQueryConfig) {
   const defaultParamsRef = useRef(defaultParams);
 
   const [params, setParams] = useState<FilterDTO>(defaultParams);
+  const [hasUserSort, setHasUserSort] = useState(false);
   const [result, setResult] = useState<PaginatedResponse<T> | null>(null);
   const [hasLoaded, setHasLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -86,11 +87,15 @@ export function useFilterQuery<T>(config: FilterQueryConfig) {
       page: 1,
       filters: defaultParamsRef.current.filters,
       searchTerm: defaultParamsRef.current.searchTerm,
+      sort: defaultParamsRef.current.sort,
     }));
+    setHasUserSort(false);
   }
 
   function setSort(sort: SortEntry[]) {
-    setParams((prev) => ({ ...prev, page: 1, sort }));
+    const next = sort.length > 0 ? sort : defaultParamsRef.current.sort;
+    setParams((prev) => ({ ...prev, page: 1, sort: next }));
+    setHasUserSort(sort.length > 0);
   }
 
   function setPage(page: number) {
@@ -111,6 +116,8 @@ export function useFilterQuery<T>(config: FilterQueryConfig) {
     error,
     filterOptions,
     params,
+    defaultParams: defaultParamsRef.current,
+    hasUserSort,
     setFilter,
     clearFilters,
     setSort,

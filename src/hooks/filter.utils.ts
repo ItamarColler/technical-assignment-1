@@ -6,8 +6,8 @@ export function buildFilterUrl(baseUrl: string, params: FilterDTO): string {
   url.searchParams.set("page", String(params.page));
   url.searchParams.set("limit", String(params.limit));
 
-  for (const { by, order } of params.sort) {
-    url.searchParams.append("sort", `${by}:${order}`);
+  if (params.sort.length > 0) {
+    url.searchParams.set("sort", params.sort.map(s => `${s.by}:${s.order}`).join(","));
   }
 
   if (params.searchTerm) {

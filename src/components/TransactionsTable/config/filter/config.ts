@@ -9,7 +9,7 @@ export const TRANSACTION_FILTERS: FilterNode[] = [
 ];
 
 export const SEARCH_CONFIG = {
-  placeholder: "Search by hash, address…",
+  placeholder: "Search by comment, address…",
   debounceMs: 300,
 } as const;
 
@@ -29,7 +29,7 @@ export const QUERY_CONFIG = {
   ...API_CONFIG,
   defaultParams: {
     page: 1,
-    limit: 20,
+    limit: 50,
     sort: [{ by: SORT_CONFIG.defaultSortBy, order: SORT_CONFIG.defaultSortOrder }],
     searchTerm: "",
     filters: [],

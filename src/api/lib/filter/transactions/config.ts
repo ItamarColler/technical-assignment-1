@@ -32,7 +32,7 @@ export const filters: FilterConfig[] = [
 ];
 
 export const searchFields: string[] = [
-  Fields.txHash,
+  Fields.comments,
   Fields.senderAddress,
   Fields.receiverAddress,
 ];

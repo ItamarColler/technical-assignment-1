@@ -22,6 +22,7 @@ interface FilterPanelProps {
   searchTerm: string;
   setSearchTerm: (val: string) => void;
   searchPlaceholder?: string;
+  hasActive: boolean;
 }
 
 
@@ -34,6 +35,7 @@ export function FilterPanel({
   searchTerm,
   setSearchTerm,
   searchPlaceholder = "Search…",
+  hasActive,
 }: FilterPanelProps) {
   const [inputValue, setInputValue] = useState(searchTerm);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -48,8 +50,6 @@ export function FilterPanel({
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => setSearchTerm(val), 300);
   }
-
-  const hasActive = params.filters.some(f => f.value) || searchTerm.length > 0;
 
   return (
     <div className="flex flex-wrap items-center gap-2">

@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SkeletonTable } from "./seketon";
 import type { Cell } from "./types";
@@ -27,35 +27,19 @@ export function DataTable<T extends { id: number | string }>({
   onRowClick,
   selectedId,
 }: DataTableProps<T>) {
-  function handleSort(key: string, isMulti: boolean) {
+  function handleSort(key: string) {
     const existingIndex = sort.findIndex(s => s.by === key);
-
-    if (!isMulti) {
-      // Single click: replace entire sort with this column
-      if (existingIndex !== -1) {
-        const current = sort[existingIndex];
-        onSort([{ by: key, order: current?.order === "desc" ? "asc" : "desc" }]);
-      } else {
-        onSort([{ by: key, order: "desc" }]);
-      }
-      return;
-    }
-
-    // Shift+click: add/toggle/remove from multi-sort list
-    if (existingIndex !== -1) {
-      const current = sort[existingIndex];
-      if (current?.order === "desc") {
-        // Toggle to asc
-        const next = [...sort];
-        next[existingIndex] = { by: key, order: "asc" };
-        onSort(next);
-      } else {
-        // Remove from sort
-        onSort(sort.filter((_, i) => i !== existingIndex));
-      }
-    } else {
+    if (existingIndex === -1) {
       onSort([...sort, { by: key, order: "desc" }]);
+    } else {
+      const next = [...sort];
+      next[existingIndex] = { by: key, order: sort[existingIndex]?.order === "desc" ? "asc" : "desc" };
+      onSort(next);
     }
+  }
+
+  function handleRemoveSort(key: string) {
+    onSort(sort.filter(s => s.by !== key));
   }
 
   if (!hasLoaded && isLoading) return <SkeletonTable columns={columns} />;
@@ -94,22 +78,42 @@ export function DataTable<T extends { id: number | string }>({
               return (
                 <th
                   key={col.key}
-                  onClick={e => handleSort(col.key, e.shiftKey)}
                   className={cn(
-                    "px-4 py-3 text-left text-xs font-medium tracking-wide select-none cursor-pointer transition-colors",
+                    "px-4 py-3 text-left text-xs font-medium tracking-wide select-none transition-all",
                     col.mobileHidden && "hidden md:table-cell",
                     isActive
-                      ? "text-amber-400"
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "text-amber-400 bg-amber-500/10 border-b-2 border-amber-500/60"
+                      : "text-muted-foreground"
                   )}
                 >
-                  <span className="inline-flex items-center gap-1">
-                    {col.label}
-                    <SortIcon
-                      isActive={isActive}
-                      order={currentOrder}
-                      index={sort.length > 1 ? sortIndex + 1 : undefined}
-                    />
+                  <span className="flex items-center justify-between gap-1">
+                    {/* Sort cycle button — only this is clickable for sorting */}
+                    <button
+                      type="button"
+                      onClick={() => handleSort(col.key)}
+                      className={cn(
+                        "inline-flex items-center gap-1 cursor-pointer",
+                        !isActive && "hover:text-foreground"
+                      )}
+                    >
+                      {col.label}
+                      <SortIcon
+                        isActive={isActive}
+                        order={currentOrder}
+                        index={sort.length > 1 ? sortIndex + 1 : undefined}
+                      />
+                    </button>
+
+                    {/* Remove button — right side, only when active */}
+                    {isActive && (
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveSort(col.key)}
+                        className="opacity-50 hover:opacity-100 hover:text-amber-200 transition-opacity cursor-pointer"
+                      >
+                        <X className="size-3.5" />
+                      </button>
+                    )}
                   </span>
                 </th>
               );

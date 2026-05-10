@@ -15,8 +15,14 @@ export function TransactionsTable() {
     data, total, page, totalPages,
     isLoading, hasLoaded, error,
     filterOptions, params,
+    hasUserSort,
     setFilter, clearFilters, setSort, setPage, setSearchTerm,
   } = useFilterQuery<TransactionRow>(QUERY_CONFIG);
+
+  const hasActive =
+    params.filters.some(f => f.value) ||
+    params.searchTerm.length > 0 ||
+    hasUserSort;
 
   return (
     <>
@@ -32,6 +38,7 @@ export function TransactionsTable() {
             searchTerm={params.searchTerm}
             setSearchTerm={setSearchTerm}
             searchPlaceholder={SEARCH_CONFIG.placeholder}
+            hasActive={hasActive}
           />
           <ExportButton disabled={isLoading} />
         </CardHeader>
@@ -43,7 +50,7 @@ export function TransactionsTable() {
           )}
           <DataTable
             columns={COLUMNS}
-            sort={params.sort}
+            sort={hasUserSort ? params.sort : []}
             onSort={setSort}
             data={data}
             isLoading={isLoading}
