@@ -49,19 +49,20 @@ export class ExcelFactory<M extends SQLiteTable> {
 
   private buildWorkbook(sheetName: string): string {
     return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-      <workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
-        <sheets>
-          <sheet name="${this.xmlEscape(sheetName)}" sheetId="1" r:id="rId1"/>
-        </sheets>
-      </workbook>`;
+<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+  <bookViews><workbookView xWindow="0" yWindow="0" windowWidth="16384" windowHeight="8192"/></bookViews>
+  <sheets>
+    <sheet name="${this.xmlEscape(sheetName)}" sheetId="1" r:id="rId1"/>
+  </sheets>
+</workbook>`;
   }
 
   private buildWorkbookRels(): string {
     return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-              <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-               <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>
-                <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
-              </Relationships>`;
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>
+  <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+</Relationships>`;
   }
 
   private buildStyles(): string {
@@ -69,30 +70,30 @@ export class ExcelFactory<M extends SQLiteTable> {
     // fills must have ≥2 entries (Excel invariant: index 0=none, index 1=gray125)
     // numFmtId ≥164 for custom formats (0-163 are built-in reserved)
     return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-              <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
-               <numFmts count="1">
-                 <numFmt numFmtId="164" formatCode="yyyy-mm-dd"/>
-                </numFmts>
-               <fonts count="2">
-                  <font><sz val="11"/><name val="Calibri"/></font>
-                  <font><b/><sz val="11"/><name val="Calibri"/></font>
-                </fonts>
-                <fills count="2">
-                  <fill><patternFill patternType="none"/></fill>
-                 <fill><patternFill patternType="gray125"/></fill>
-                </fills>
-               <borders count="1">
-                  <border><left/><right/><top/><bottom/><diagonal/></border>
-                </borders>
-                <cellStyleXfs count="1">
-                  <xf numFmtId="0" fontId="0" fillId="0" borderId="0"/>
-               </cellStyleXfs>
-               <cellXfs count="3">
-                               <xf numFmtId="0"   fontId="0" fillId="0" borderId="0" xfId="0"/>
-                               <xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>
-                 <xf numFmtId="0"   fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/>
-               </cellXfs>
-          </styleSheet>`;
+<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+  <numFmts count="1">
+    <numFmt numFmtId="164" formatCode="yyyy-mm-dd"/>
+  </numFmts>
+  <fonts count="2">
+    <font><sz val="11"/><name val="Calibri"/></font>
+    <font><b/><sz val="11"/><name val="Calibri"/></font>
+  </fonts>
+  <fills count="2">
+    <fill><patternFill patternType="none"/></fill>
+    <fill><patternFill patternType="gray125"/></fill>
+  </fills>
+  <borders count="1">
+    <border><left/><right/><top/><bottom/><diagonal/></border>
+  </borders>
+  <cellStyleXfs count="1">
+    <xf numFmtId="0" fontId="0" fillId="0" borderId="0"/>
+  </cellStyleXfs>
+  <cellXfs count="3">
+    <xf numFmtId="0"   fontId="0" fillId="0" borderId="0" xfId="0"/>
+    <xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>
+    <xf numFmtId="0"   fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/>
+  </cellXfs>
+</styleSheet>`;
   }
 
   private buildSheet(rows: InferSelectModel<M>[]): string {
