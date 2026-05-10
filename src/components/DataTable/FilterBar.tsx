@@ -18,6 +18,7 @@ interface FilterPanelProps {
   clearFilters: () => void;
 }
 
+
 export function FilterPanel({
   filters,
   filterOptions,

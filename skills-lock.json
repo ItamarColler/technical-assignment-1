@@ -1,6 +1,12 @@
 {
   "version": 1,
   "skills": {
+    "design-patterns-implementation": {
+      "source": "aj-geddes/useful-ai-prompts",
+      "sourceType": "github",
+      "skillPath": "skills/design-patterns-implementation/SKILL.md",
+      "computedHash": "aaee1e6f7f3052d6ef0110e0427c164f4aaad9375fd61027f147fc0ddaa5e303"
+    },
     "frontend-design": {
       "source": "anthropics/claude-code",
       "sourceType": "github",
