@@ -21,7 +21,7 @@
 | #   | Feature                              | Priority     | Status         |
 | --- | ------------------------------------ | ------------ | -------------- |
 | 1   | Server-side paginated data table     | Required     | ✅ Done |
-| 2   | Excel export (zero third-party deps) | Required     | 🟡 Route stub (Phase 4) |
+| 2   | Excel export (zero third-party deps) | Required     | ✅ Done |
 | 3   | Responsive layout                    | Required     | ✅ Done (overflow-x-auto + hidden columns) |
 | 4   | Column sorting                       | Nice to have | ✅ Done |
 | 5   | Column filtering                     | Nice to have | ✅ Done |
@@ -121,7 +121,7 @@ Ensure the page is usable on both desktop and mobile viewports using Tailwind v4
 
 Implement XLSX file generation from scratch — no `xlsx`, `exceljs`, `sheetjs`, or similar libraries.
 
-**Status:** ⬜ Not started
+**Status:** ✅ Complete
 
 ---
 
@@ -165,3 +165,4 @@ Code quality pass (`/simplify`), security review of API inputs (`/security-revie
 | 2026-05-07 | Plan created — ready to implement |
 | 2026-05-07 | Phase 1 backend plan completed — 6 new files, 1 modified, implementation order defined |
 | 2026-05-07 | Phase 2 data table UI complete — 5 new files, 4 modified |
+| 2026-05-10 | Phase 4 XLSX export complete — zip.ts + xlsx.ts + 13 passing tests |
