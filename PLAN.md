@@ -21,7 +21,7 @@
 | #   | Feature                              | Priority     | Status         |
 | --- | ------------------------------------ | ------------ | -------------- |
 | 1   | Server-side paginated data table     | Required     | ✅ Done |
-| 2   | Excel export (zero third-party deps) | Required     | 🟡 Route stub (Phase 4) |
+| 2   | Excel export (zero third-party deps) | Required     | ✅ Done |
 | 3   | Responsive layout                    | Required     | ✅ Done (overflow-x-auto + hidden columns) |
 | 4   | Multi-column sorting                 | Nice to have | ✅ Done |
 | 5   | Column filtering + text search       | Nice to have | ✅ Done |
@@ -121,7 +121,7 @@ Ensure the page is usable on both desktop and mobile viewports using Tailwind v4
 
 Implement XLSX file generation from scratch — no `xlsx`, `exceljs`, `sheetjs`, or similar libraries.
 
-**Status:** ⬜ Not started
+**Status:** ✅ Complete
 
 ---
 
@@ -205,3 +205,4 @@ Passed as `hasActive` prop — enables "Clear all" to light up when the user has
 | 2026-05-07 | Phase 2 data table UI complete — 5 new files, 4 modified |
 | 2026-05-10 | Filter enhancements — text search, multi-column sort, generic URL parsing, FilterFactory searchFields, feeCurrency filter added |
 | 2026-05-10 | Comments column replaces txHash; sort UX changed to binary toggle + × remove; sort URL changed to comma-separated; pagination limit set to 50 |
+| 2026-05-10 | Phase 4 XLSX export complete — zip.ts + xlsx.ts + 13 passing tests |
