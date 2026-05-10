@@ -162,22 +162,22 @@ Code quality pass (`/simplify`), security review of API inputs (`/security-revie
 
 ### Multi-column sort
 - **`SortEntry`** `{ by: string; order: "asc" | "desc" }` — replaces the old `sortBy + sortOrder` pair everywhere
-- **URL format:** repeated `sort=date:desc&sort=method:asc` params; parsed with `raw.getAll("sort")`
-- **DataTable UX:** click a column header to cycle tri-state (not sorted → desc → asc → removed from sort); `×` button inside active headers removes that column immediately; amber background + bottom border on active headers
+- **URL format:** single comma-separated param `sort=date:desc,method:asc`; backend splits on `,`
+- **DataTable UX:** sort button (label + icon) toggles asc↔desc and adds column if not yet active; `×` button on the right side of the header removes that column from sort; no tri-state, no clickable dead space in header; amber background + bottom border on active headers
 - **`setSort(SortEntry[])`** in hook guards against empty array — falls back to `defaultParams.sort`
 - **`clearFilters()`** resets sort + searchTerm + filters all together
 
 ### Text search
 - **`searchTerm: string`** in `FilterDTO`; URL param `searchTerm=...`
 - **Backend:** `FilterFactory.buildConditions` applies `OR LIKE '%term%'` across each entry in `searchFields`; combined with AND filter conditions
-- **Transactions search fields:** `txHash`, `senderAddress`, `receiverAddress`
+- **Transactions search fields:** `comments`, `senderAddress`, `receiverAddress`
 - **Frontend:** debounced controlled `<Input>` in `FilterPanel`; clears via `×` button; amber border when active; syncs with `searchTerm` prop on external reset
 
 ### FilterFactory search config
 Defined per-factory in the constructor via `FilterData.searchFields: string[]`:
 ```ts
 // src/api/lib/filter/transactions/config.ts
-export const searchFields = ["txHash", "senderAddress", "receiverAddress"];
+export const searchFields = ["comments", "senderAddress", "receiverAddress"];
 ```
 `FilterFactory.buildConditions(nodes, searchTerm?)` builds `or(like(col, '%term%'), ...)` when `searchTerm` is present.
 
@@ -190,9 +190,9 @@ Computed in the consumer (`TransactionsTable`), not inside `FilterPanel`:
 const hasActive =
   params.filters.some(f => f.value) ||
   params.searchTerm.length > 0 ||
-  JSON.stringify(params.sort) !== JSON.stringify(defaultParams.sort);
+  hasUserSort;
 ```
-Passed as `hasActive` prop — enables "Clear all" to light up when sort alone differs from default.
+Passed as `hasActive` prop — enables "Clear all" to light up when the user has applied any sort, filter, or search. `hasUserSort` is a boolean flag from `useFilterQuery`, set to `true` when `setSort` is called with a non-empty array and reset to `false` by `clearFilters`.
 
 ---
 
@@ -204,3 +204,4 @@ Passed as `hasActive` prop — enables "Clear all" to light up when sort alone d
 | 2026-05-07 | Phase 1 backend plan completed — 6 new files, 1 modified, implementation order defined |
 | 2026-05-07 | Phase 2 data table UI complete — 5 new files, 4 modified |
 | 2026-05-10 | Filter enhancements — text search, multi-column sort, generic URL parsing, FilterFactory searchFields, feeCurrency filter added |
+| 2026-05-10 | Comments column replaces txHash; sort UX changed to binary toggle + × remove; sort URL changed to comma-separated; pagination limit set to 50 |
