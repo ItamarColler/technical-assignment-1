@@ -6,7 +6,7 @@ import { Pagination } from "@/components/TransactionsTable/pagination";
 import { TransactionDialog } from "./TransactionDialog";
 import { useFilterQuery } from "@/hooks/filter";
 import type { TransactionRow } from "@/api/types";
-import { COLUMNS, QUERY_CONFIG, TRANSACTION_FILTERS, SEARCH_CONFIG } from "./config";
+import { COLUMNS, QUERY_CONFIG, TRANSACTION_FILTERS, SEARCH_CONFIG, API_CONFIG } from "./config";
 
 export function TransactionsTable() {
   const [selectedRow, setSelectedRow] = useState<TransactionRow | null>(null);
@@ -40,7 +40,7 @@ export function TransactionsTable() {
             searchPlaceholder={SEARCH_CONFIG.placeholder}
             hasActive={hasActive}
           />
-          <ExportButton disabled={isLoading} />
+          <ExportButton disabled={isLoading} params={params} exportUrl={API_CONFIG.exportUrl} />
         </CardHeader>
 
         <CardContent className="p-0 relative">

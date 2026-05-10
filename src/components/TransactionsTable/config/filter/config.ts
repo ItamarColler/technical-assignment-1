@@ -23,6 +23,9 @@ export const API_CONFIG = {
   filterOptionsUrl:
     process.env.BUN_PUBLIC_TRANSACTIONS_FILTER_OPTIONS_URL ??
     "/api/transactions/filter-options",
+  exportUrl:
+    process.env.BUN_PUBLIC_TRANSACTIONS_EXPORT_URL ??
+    "/api/transactions/export",
 } as const;
 
 export const QUERY_CONFIG = {

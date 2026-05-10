@@ -35,6 +35,18 @@ export async function fetchFilterOptions(
   }
 }
 
+export function buildExportUrl(baseUrl: string, params: FilterDTO): string {
+  const url = new URL(baseUrl, window.location.origin);
+  if (params.sort.length > 0) {
+    url.searchParams.set("sort", params.sort.map(s => `${s.by}:${s.order}`).join(","));
+  }
+  if (params.searchTerm) url.searchParams.set("searchTerm", params.searchTerm);
+  for (const node of params.filters) {
+    if (node.value) url.searchParams.set(`filter[${node.key}]`, node.value);
+  }
+  return url.toString();
+}
+
 export function buildFilterOptionsUrl(baseUrl: string, filters: FilterNode[]): string {
   const url = new URL(baseUrl, window.location.origin);
   for (const node of filters) {

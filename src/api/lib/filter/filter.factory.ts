@@ -95,6 +95,19 @@ export class FilterFactory<TTable extends SQLiteTable> {
       total: countResult[0]?.count ?? 0,
     };
   }
+
+  async queryAll(
+    params: Pick<FilterQueryParams, "filters" | "sort" | "searchTerm">,
+  ): Promise<InferSelectModel<TTable>[]> {
+    const where = this.buildConditions(params.filters, params.searchTerm);
+    const orderExprs = params.sort.map(({ by, order }) => {
+      const col = this.getColumn(by);
+      return order === "asc" ? asc(col) : desc(col);
+    });
+    const data = await db.select().from(this.table).where(where).orderBy(...orderExprs);
+    return data as InferSelectModel<TTable>[];
+  }
+
   private getColumn(key: string): AnyColumn {
     return getColumns(this.table)[key] as AnyColumn;
   }
