@@ -1,4 +1,4 @@
-export * from "./table";
+export * from "./Table";
 export * from "./FilterBar";
-export * from "./seketon";
+export * from "./Skeleton";
 export * from "./types";

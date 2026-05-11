@@ -1,5 +1,5 @@
 import type { TransactionRow } from "@/api/types";
-import { AmountCell } from "./amountCell";
+import { AmountCell } from "./AmountCell";
 
 type Props = Pick<TransactionRow, "buyAmount" | "buyCurrency">;
 

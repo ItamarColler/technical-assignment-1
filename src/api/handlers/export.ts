@@ -2,6 +2,7 @@ import { filters as filterConfig } from "../lib/filter/transactions/config";
 import { parseQueryParams } from "../lib/validation";
 import { TransactionFilterFactory } from "../lib/filter/transactions/factory";
 import type { FilterNode } from "../lib/filter/filter.types";
+import { applyDateRangeFilters } from "../lib/filter/dateRange";
 import { TransactionExcelFactory } from "../lib/excel/transactions";
 import type { ExportMetadata } from "../lib/excel/excel.types";
 
@@ -49,16 +50,7 @@ export async function handleExport(req: Request): Promise<Response> {
     return value ? [{ ...node, value }] : [];
   });
 
-  const dateFrom = filters["dateFrom"];
-  const dateTo = filters["dateTo"];
-  if (dateFrom) {
-    const ts = new Date(dateFrom).getTime();
-    if (!isNaN(ts)) filterNodes.push({ key: "date", title: "From", value: String(ts), operator: "gte" as const });
-  }
-  if (dateTo) {
-    const ts = new Date(dateTo + "T23:59:59.999Z").getTime();
-    if (!isNaN(ts)) filterNodes.push({ key: "date", title: "To", value: String(ts), operator: "lte" as const });
-  }
+  applyDateRangeFilters(filters, filterNodes);
 
   try {
     const rows = await TransactionFilterFactory.Instance.queryAll({

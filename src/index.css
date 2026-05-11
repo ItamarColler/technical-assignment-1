@@ -53,6 +53,11 @@ body::before {
   }
 }
 
+/* Active filter highlight — applied to any control when a filter value is set */
+@utility filter-active {
+  @apply border-amber-500/50 text-amber-400;
+}
+
 /* Responsive date column width — used via Cell.colClassName */
 @utility col-date {
   width: 100px;

@@ -206,7 +206,40 @@ Implement XLSX file generation from scratch — no `xlsx`, `exceljs`, `sheetjs`,
 
 Code quality pass (`/simplify`), security review of API inputs (`/security-review`), and manual QA.
 
-**Status:** ⬜ Not started
+**Status:** 🔄 In progress
+
+#### Code quality changes (branch `refactor/code-quality`)
+
+| Change | Files |
+|---|---|
+| Extracted `applyDateRangeFilters` utility — removed duplicate 10-line block from both handlers | `src/api/lib/filter/dateRange.ts` |
+| Extracted `StickyFilterBar` component — owns `useScrollDirection`, `filtersOpen` state, and pause wiring | `src/components/TransactionsTable/StickyFilterBar.tsx` |
+| Added `@utility filter-active` to index.css — replaces repeated `border-amber-500/50 text-amber-400` in FilterBar | `src/index.css`, `src/components/DataTable/FilterBar.tsx` |
+| Fixed `date-picker.tsx` — `key={iso}` on day cells (prevents stale focus on month nav); calendar icon always visible so date can be changed without clearing | `src/components/ui/date-picker.tsx` |
+
+#### File naming standardization
+
+All React component files now PascalCase; hook files match their exported name.
+
+| Old | New |
+|---|---|
+| `DataTable/table.tsx` | `Table.tsx` |
+| `DataTable/seketon.tsx` | `Skeleton.tsx` *(typo fixed)* |
+| `TransactionsTable/pagination.tsx` | `Pagination.tsx` |
+| `TransactionsTable/transactionsTable.tsx` | `TransactionsTable.tsx` |
+| `TransactionsTable/exportButton.tsx` | `ExportButton.tsx` |
+| `TransactionsTable/config/columns/amountCell.tsx` | `AmountCell.tsx` |
+| `TransactionsTable/config/columns/buyAmount.tsx` | `BuyAmount.tsx` |
+| `TransactionsTable/config/columns/sellAmount.tsx` | `SellAmount.tsx` |
+| `TransactionsTable/config/columns/feeAmount.tsx` | `FeeAmount.tsx` |
+| `TransactionsTable/config/columns/date.tsx` | `Date.tsx` |
+| `TransactionsTable/config/columns/method.tsx` | `Method.tsx` |
+| `TransactionsTable/config/columns/network.tsx` | `Network.tsx` |
+| `TransactionsTable/config/columns/currency.tsx` | `Currency.tsx` |
+| `TransactionsTable/config/columns/comments.tsx` | `Comments.tsx` |
+| `TransactionsTable/config/columns/txHash.tsx` | `TxHash.tsx` |
+| `hooks/filter.ts` | `useFilterQuery.ts` |
+| `hooks/filter.utils.ts` | `filterUtils.ts` |
 
 ---
 
@@ -299,3 +332,5 @@ Passed as `hasActive` prop — enables "Clear all" to light up when the user has
 | 2026-05-11 | Upgraded export to native Excel Table (TableStyleMedium2, banded rows, AutoFilter, freeze pane, column widths) on branch `feat/excel-interactive-autofilter` |
 | 2026-05-11 | Added export metadata rows (Generated, Filters) above data table; ID column removed from export (DB-only field) |
 | 2026-05-11 | TransactionDialog responsive refactor — bento 2-col grid on wide screens, null field suppression, section collapse when empty |
+| 2026-05-11 | Code quality pass — extracted `applyDateRangeFilters`, `StickyFilterBar`, added `@utility filter-active`, fixed date-picker key + re-open bug |
+| 2026-05-11 | File naming standardization — 17 files renamed to PascalCase components / useXxx hooks / camelCase utilities |

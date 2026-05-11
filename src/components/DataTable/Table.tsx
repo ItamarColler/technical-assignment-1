@@ -1,6 +1,6 @@
 import { ArrowDown, ArrowUp, ArrowUpDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { SkeletonTable } from "./seketon";
+import { SkeletonTable } from "./Skeleton";
 import type { Cell, CellContext } from "./types";
 import type { SortEntry, SortOrder } from "@/api/lib/filter/filter.types";
 

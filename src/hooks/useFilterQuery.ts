@@ -5,7 +5,7 @@ import type {
   SortEntry,
 } from "@/api/lib/filter/filter.types";
 import type { PaginatedResponse } from "@/api/types";
-import { buildFilterUrl, fetchFilterOptions, buildFilterOptionsUrl } from "./filter.utils";
+import { buildFilterUrl, fetchFilterOptions, buildFilterOptionsUrl } from "./filterUtils";
 
 export interface FilterQueryConfig {
   url: string;

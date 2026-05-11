@@ -85,9 +85,7 @@ export function FilterPanel({
             placeholder={searchPlaceholder}
             className={cn(
               "h-7 text-xs pl-7 pr-7",
-              inputValue.length > 0
-                ? "border-amber-500/50 text-amber-400"
-                : "text-muted-foreground"
+              inputValue.length > 0 ? "filter-active" : "text-muted-foreground"
             )}
           />
           {inputValue.length > 0 && (
@@ -109,9 +107,7 @@ export function FilterPanel({
           onClick={() => onFiltersOpenChange?.(!filtersOpen)}
           className={cn(
             "sm:hidden h-7 gap-1.5 text-xs shrink-0",
-            hasActive
-              ? "border-amber-500/50 text-amber-400"
-              : "text-muted-foreground"
+            hasActive ? "filter-active" : "text-muted-foreground"
           )}
         >
           <FilterX className="size-3" />
@@ -142,9 +138,7 @@ export function FilterPanel({
             }}
             className={cn(
               "h-7 gap-1 text-xs",
-              activeAdvancedCount > 0
-                ? "border-amber-500/50 text-amber-400"
-                : "text-muted-foreground"
+              activeAdvancedCount > 0 ? "filter-active" : "text-muted-foreground"
             )}
           >
             {advancedOpen ? <ChevronUp className="size-3" /> : <ChevronDown className="size-3" />}
@@ -212,9 +206,7 @@ function FilterSelect({
         size="sm"
         className={cn(
           "h-7 text-xs min-w-[110px]",
-          activeValue
-            ? "border-amber-500/50 text-amber-400"
-            : "text-muted-foreground"
+          activeValue ? "filter-active" : "text-muted-foreground"
         )}
       >
         <SelectValue placeholder={f.title} />

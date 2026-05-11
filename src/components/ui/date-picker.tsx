@@ -158,21 +158,18 @@ export function DatePicker({ value, onChange, min, placeholder = "MM/DD/YYYY", c
             "placeholder:text-muted-foreground/50"
           )}
         />
-        {value
-          ? (
-            <button type="button" onClick={clear} className="text-muted-foreground hover:text-foreground transition-colors shrink-0">
-              <X className="size-3" />
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setOpen(v => !v)}
-              className="text-muted-foreground hover:text-foreground transition-colors shrink-0"
-            >
-              <CalendarDays className="size-3.5" />
-            </button>
-          )
-        }
+        {value && (
+          <button type="button" onClick={clear} className="text-muted-foreground hover:text-foreground transition-colors shrink-0">
+            <X className="size-3" />
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={() => setOpen(v => !v)}
+          className="text-muted-foreground hover:text-foreground transition-colors shrink-0"
+        >
+          <CalendarDays className="size-3.5" />
+        </button>
       </div>
 
       {/* Calendar popover — anchored to the container div */}
@@ -226,7 +223,7 @@ export function DatePicker({ value, onChange, min, placeholder = "MM/DD/YYYY", c
                   const disabled = !!min && iso < min;
                   return (
                     <button
-                      key={i}
+                      key={iso}
                       type="button"
                       disabled={disabled}
                       onClick={() => selectDay(iso)}

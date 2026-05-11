@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { FilterDTO } from "@/api/lib/filter/filter.types";
-import { buildExportUrl } from "@/hooks/filter.utils";
+import { buildExportUrl } from "@/hooks/filterUtils";
 
 interface ExportButtonProps {
   disabled?: boolean;
