@@ -97,11 +97,38 @@ export class ExcelFactory<M extends SQLiteTable> {
   }
 
   private buildSheet(rows: InferSelectModel<M>[]): string {
+    const totalRows = rows.length + 1;
+    const lastCol = this.colLetter(this.columns.length - 1);
+    const rangeRef = `A1:${lastCol}${totalRows}`;
+
     const parts: string[] = [];
+
     parts.push(
       `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n` +
-        `<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>`,
+        `<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">`,
     );
+
+    parts.push(`<dimension ref="${rangeRef}"/>`);
+
+    parts.push(
+      `<sheetViews>` +
+        `<sheetView tabSelected="1" workbookViewId="0">` +
+          `<pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/>` +
+          `<selection pane="bottomLeft" activeCell="A2" sqref="A2"/>` +
+        `</sheetView>` +
+      `</sheetViews>`,
+    );
+
+    const colParts: string[] = [`<cols>`];
+    for (let c = 0; c < this.columns.length; c++) {
+      const w = this.columns[c]!.width ?? 10;
+      const n = c + 1;
+      colParts.push(`<col min="${n}" max="${n}" width="${w}" customWidth="1"/>`);
+    }
+    colParts.push(`</cols>`);
+    parts.push(colParts.join(""));
+
+    parts.push(`<sheetData>`);
 
     parts.push(`<row r="1">`);
     for (let c = 0; c < this.columns.length; c++) {
@@ -120,17 +147,16 @@ export class ExcelFactory<M extends SQLiteTable> {
       for (let c = 0; c < this.columns.length; c++) {
         const col = this.columns[c]!;
         parts.push(
-          this.renderCell(
-            col.type,
-            col.getValue(row),
-            this.cellAddr(c, rowNum),
-          ),
+          this.renderCell(col.type, col.getValue(row), this.cellAddr(c, rowNum)),
         );
       }
       parts.push(`</row>`);
     }
 
-    parts.push(`</sheetData></worksheet>`);
+    parts.push(`</sheetData>`);
+    parts.push(`<autoFilter ref="${rangeRef}"/>`);
+    parts.push(`</worksheet>`);
+
     return parts.join("");
   }
 
