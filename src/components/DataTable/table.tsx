@@ -5,14 +5,14 @@ import type { Cell, CellContext } from "./types";
 import type { SortEntry, SortOrder } from "@/api/lib/filter/filter.types";
 
 const colVisibility = (ctx?: CellContext) => cn(
-  ctx?.desktopOnly  && "hidden lg:table-column",
-  ctx?.wideOnly     && "hidden md:table-column",
+  ctx?.desktopOnly && "hidden lg:table-column",
+  ctx?.wideOnly && "hidden md:table-column",
   ctx?.tabletHidden && "hidden sm:table-column",
 );
 
 const cellVisibility = (ctx?: CellContext) => cn(
-  ctx?.desktopOnly  && "hidden lg:table-cell",
-  ctx?.wideOnly     && "hidden md:table-cell",
+  ctx?.desktopOnly && "hidden lg:table-cell",
+  ctx?.wideOnly && "hidden md:table-cell",
   ctx?.tabletHidden && "hidden sm:table-cell",
 );
 
