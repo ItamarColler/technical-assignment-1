@@ -6,3 +6,8 @@ export interface ColumnDef<T> {
   type: CellType;
   width?: number;
 }
+
+export interface ExportMetadata {
+  generatedAt: string;
+  filters: string;
+}

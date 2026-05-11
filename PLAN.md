@@ -135,18 +135,48 @@ Implement XLSX file generation from scratch — no `xlsx`, `exceljs`, `sheetjs`,
 
 | File | Role |
 | ------------------------------------------ | ------------------------------------------------------------------ |
-| `src/api/lib/excel/excel.types.ts` | `CellType`, `ColumnDef<T>` — shared types |
+| `src/api/lib/excel/excel.types.ts` | `CellType`, `ColumnDef<T>`, `ExportMetadata` — shared types |
 | `src/api/lib/excel/xlsx.ts` | `ExcelFactory<M extends SQLiteTable>` — generic XLSX generator class |
 | `src/api/lib/excel/zip/zip.types.ts` | `ZipEntry` interface |
 | `src/api/lib/excel/zip/zip.ts` | `ZipBuilder` — fluent ZIP assembler with `static crc32` |
 | `src/api/lib/excel/zip/index.ts` | Barrel re-export |
-| `src/api/lib/excel/transactions/config.ts` | `TRANSACTION_COLUMNS` + `transactionExcelFactory` singleton |
+| `src/api/lib/excel/transactions/config.ts` | `TRANSACTION_COLUMNS` (18 cols, ID excluded) |
+| `src/api/lib/excel/transactions/excel.factory.ts` | `TransactionExcelFactory` singleton (static `get Instance()`) |
+| `src/api/handlers/export.ts` | Builds `ExportMetadata` from active filters and passes to `generate()` |
 
 **Design patterns applied:**
-- **`ExcelFactory<M>`** — constructor takes `(table: M, columns: ColumnDef<InferSelectModel<M>>[])`. All XML builders (`buildContentTypes`, `buildRels`, `buildWorkbook`, `buildWorkbookRels`, `buildStyles`, `buildSheet`, `renderCell`, `msToExcelSerial`, `xmlEscape`, `cellAddr`, `colLetter`) are private. Single public method: `generate(rows, sheetName?)`.
+- **`ExcelFactory<M>`** — constructor takes `(table: M, columns: ColumnDef<InferSelectModel<M>>[])`. All XML builders are private. Public method: `generate(rows, sheetName?, metadata?)`.
 - **`ZipBuilder`** — utility class with fluent `add(name, content)` → `build()`. `crc32` is a `static` method. `CRC_TABLE`, `u16`, `u32` are private statics. `ZipEntry` lives in `zip.types.ts`.
 - **Strategy cell rendering** — `ColumnDef<T>.type` drives `renderCell` dispatch; no magic index constants.
-- **Configured singleton** — `transactionExcelFactory = new ExcelFactory(transactions, TRANSACTION_COLUMNS)`; callers never instantiate directly.
+- **Configured singleton** — `TransactionExcelFactory.Instance`; callers never instantiate directly.
+
+#### ZIP parts generated per export
+
+| Path | Builder method |
+| ---- | -------------- |
+| `[Content_Types].xml` | `buildContentTypes()` |
+| `_rels/.rels` | `buildRels()` |
+| `xl/workbook.xml` | `buildWorkbook()` — includes `<fileVersion>`, `<bookViews>` |
+| `xl/_rels/workbook.xml.rels` | `buildWorkbookRels()` |
+| `xl/worksheets/sheet1.xml` | `buildSheet()` — metadata rows + freeze pane + tableParts |
+| `xl/worksheets/_rels/sheet1.xml.rels` | `buildSheetRels()` |
+| `xl/tables/table1.xml` | `buildTable()` — TableStyleMedium2 + autoFilter + tableColumns |
+| `xl/styles.xml` | `buildStyles()` — includes `<cellStyles>` with Normal style |
+
+#### Excel interactivity features
+
+- **Native Excel Table** (`xl/tables/table1.xml`) — `TableStyleMedium2`, banded rows, structured references, AutoFilter dropdowns on every column header
+- **Freeze pane** — freezes rows 1–`headerRow` so metadata + table header stay pinned while scrolling
+- **Column widths** — per-column via `ColumnDef.width` (8–44 units)
+- **Export metadata rows** — when `ExportMetadata` is passed, rows 1–2 show "Generated" and "Filters" labels; table starts at row 4; row 3 is an empty visual separator
+- **Sheet name** — capped at 31 chars (Excel hard limit) to prevent "Worksheet properties repaired" dialog
+
+#### Known XML correctness rules
+
+- All XML template literals must have content starting at column 0 — source indentation corrupts XML
+- `<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>` must follow `<cellXfs>` — without it Excel repairs styles and blames workbook.xml
+- `<fileVersion appName="xl" .../>` must be the first child of `<workbook>`
+- `<tableParts>` in worksheet references the table via `r:id`; `<autoFilter>` lives inside `xl/tables/table1.xml`, not in the worksheet
 
 ---
 
@@ -243,3 +273,6 @@ Passed as `hasActive` prop — enables "Clear all" to light up when the user has
 | 2026-05-10 | Comments column replaces txHash; sort UX changed to binary toggle + × remove; sort URL changed to comma-separated; pagination limit set to 50 |
 | 2026-05-10 | Phase 4 XLSX export complete — zip.ts + xlsx.ts + 13 passing tests                                                                            |
 | 2026-05-10 | Refactored excel layer — ExcelFactory\<M\> class, ZipBuilder utility class, excel.types.ts, zip/ directory; 8 tests passing                    |
+| 2026-05-11 | Fixed Excel repair dialogs — XML indentation corruption, missing `<bookViews>`, `<cellStyles>`, `<fileVersion>`, sheet name 31-char overflow |
+| 2026-05-11 | Upgraded export to native Excel Table (TableStyleMedium2, banded rows, AutoFilter, freeze pane, column widths) on branch `feat/excel-interactive-autofilter` |
+| 2026-05-11 | Added export metadata rows (Generated, Filters) above data table; ID column removed from export (DB-only field) |

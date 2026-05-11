@@ -2,7 +2,6 @@ import type { TransactionRow } from "../../../types";
 import type { ColumnDef } from "../excel.types";
 
 export const TRANSACTION_COLUMNS: ColumnDef<TransactionRow>[] = [
-  { header: "ID",               getValue: (r) => r.id,              type: "number", width: 8  },
   { header: "Method",           getValue: (r) => r.method,          type: "text",   width: 14 },
   { header: "Buy Amount",       getValue: (r) => r.buyAmount,       type: "number", width: 13 },
   { header: "Buy Currency",     getValue: (r) => r.buyCurrency,     type: "text",   width: 14 },

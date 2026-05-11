@@ -2,6 +2,7 @@ import { filters as filterConfig } from "../lib/filter/transactions/config";
 import { parseQueryParams } from "../lib/validation";
 import { TransactionFilterFactory } from "../lib/filter/transactions/factory";
 import { TransactionExcelFactory } from "../lib/excel/transactions";
+import type { ExportMetadata } from "../lib/excel/excel.types";
 
 function buildExportName(
   filters: Record<string, string | undefined>,
@@ -25,7 +26,7 @@ function buildExportName(
 
   const filterLabel =
     activeValues.length > 0 ? ` (${activeValues.join(", ")})` : "";
-  const sheetName = `Transactions${filterLabel} ${date} ${time}`;
+  const sheetName = `Transactions${filterLabel} ${date} ${time}`.slice(0, 31);
 
   return { filename, sheetName };
 }
@@ -55,9 +56,24 @@ export async function handleExport(req: Request): Promise<Response> {
     });
 
     const { filename, sheetName } = buildExportName(filters, searchTerm);
+
+    const toLabel = (key: string) =>
+      key.replace(/([A-Z])/g, " $1").replace(/^./, (c) => c.toUpperCase());
+    const filterParts = Object.entries(filters)
+      .filter(([, v]) => Boolean(v))
+      .map(([k, v]) => `${toLabel(k)}: ${v}`);
+    if (searchTerm) filterParts.push(`Search: "${searchTerm}"`);
+
+    const now = new Date();
+    const metadata: ExportMetadata = {
+      generatedAt: `${now.toISOString().slice(0, 10)} ${now.toTimeString().slice(0, 5)}`,
+      filters: filterParts.length > 0 ? filterParts.join(" · ") : "None",
+    };
+
     const bytes = await TransactionExcelFactory.Instance.generate(
       rows,
       sheetName,
+      metadata,
     );
 
     return new Response(Buffer.from(bytes), {
