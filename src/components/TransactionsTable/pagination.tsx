@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 interface PaginationProps {
@@ -30,6 +32,16 @@ export function Pagination({ page, totalPages, total, limit, onPageChange }: Pag
           aria-label="First page"
         >
           <ChevronsLeft />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={() => onPageChange(Math.max(1, page - 5))}
+          disabled={page <= 1}
+          aria-label="Back 5 pages"
+          className="text-[10px] font-mono tabular-nums"
+        >
+          −5
         </Button>
         <Button
           variant="ghost"
@@ -68,10 +80,8 @@ export function Pagination({ page, totalPages, total, limit, onPageChange }: Pag
           )}
         </div>
 
-        {/* Mobile page indicator — mobile only */}
-        <span className="sm:hidden text-xs text-muted-foreground font-mono tabular-nums">
-          {page} / {totalPages}
-        </span>
+        {/* Go-to-page input — always visible; replaces static indicator on mobile */}
+        <GoToPage key={page} page={page} totalPages={totalPages} onPageChange={onPageChange} />
 
         <Button
           variant="ghost"
@@ -85,6 +95,16 @@ export function Pagination({ page, totalPages, total, limit, onPageChange }: Pag
         <Button
           variant="ghost"
           size="icon-sm"
+          onClick={() => onPageChange(Math.min(totalPages, page + 5))}
+          disabled={page >= totalPages}
+          aria-label="Forward 5 pages"
+          className="text-[10px] font-mono tabular-nums"
+        >
+          +5
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon-sm"
           onClick={() => onPageChange(totalPages)}
           disabled={page >= totalPages}
           aria-label="Last page"
@@ -92,6 +112,40 @@ export function Pagination({ page, totalPages, total, limit, onPageChange }: Pag
           <ChevronsRight />
         </Button>
       </div>
+    </div>
+  );
+}
+
+function GoToPage({ page, totalPages, onPageChange }: {
+  page: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+}) {
+  const [value, setValue] = useState(String(page));
+
+  const submit = () => {
+    const n = parseInt(value, 10);
+    if (!isNaN(n)) {
+      onPageChange(Math.max(1, Math.min(totalPages, n)));
+    } else {
+      setValue(String(page));
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-1 text-xs text-muted-foreground font-mono tabular-nums">
+      <Input
+        type="text"
+        inputMode="numeric"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onKeyDown={(e) => e.key === "Enter" && submit()}
+        onFocus={(e) => e.target.select()}
+        onBlur={() => setValue(String(page))}
+        className="w-9 px-1 text-xs text-center font-mono tabular-nums"
+        aria-label="Go to page"
+      />
+      <span>/ {totalPages}</span>
     </div>
   );
 }
