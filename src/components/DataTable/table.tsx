@@ -4,7 +4,7 @@ import { SkeletonTable } from "./seketon";
 import type { Cell, CellContext } from "./types";
 import type { SortEntry, SortOrder } from "@/api/lib/filter/filter.types";
 
-const colVisibility = (ctx?: CellContext) => cn(
+const collumnVisibility = (ctx?: CellContext) => cn(
   ctx?.desktopOnly && "hidden lg:table-column",
   ctx?.wideOnly && "hidden md:table-column",
   ctx?.tabletHidden && "hidden sm:table-column",
@@ -75,7 +75,7 @@ export function DataTable<T extends { id: number | string }>({
           {columns.map(col => (
             <col
               key={col.key}
-              className={cn(colVisibility(col.ctx), col.ctx?.colClassName)}
+              className={cn(collumnVisibility(col.ctx), col.ctx?.colClassName)}
             />
           ))}
         </colgroup>
