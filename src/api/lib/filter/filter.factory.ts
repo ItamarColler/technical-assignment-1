@@ -114,9 +114,13 @@ export class FilterFactory<TTable extends SQLiteTable> {
 
   private buildConditions(nodes: FilterNode[], searchTerm?: string): SQL {
     const conditions: SQL[] = [];
-    for (const { key, value } of nodes) {
+    for (const { key, value, operator = "eq" } of nodes) {
       const col = this.getColumn(key);
-      if (col && value) conditions.push(eq(col, value));
+      if (!col || !value) continue;
+      if (operator === "gte") conditions.push(sql`${col} >= ${Number(value)}`);
+      else if (operator === "lte") conditions.push(sql`${col} <= ${Number(value)}`);
+      else if (operator === "like") conditions.push(like(col, `%${value}%`));
+      else conditions.push(eq(col, value));
     }
     if (searchTerm) {
       const searchConditions = this.searchFields

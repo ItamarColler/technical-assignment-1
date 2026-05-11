@@ -1,8 +1,11 @@
 /************************* Filter config  ************************/
+export type FilterOperator = "eq" | "gte" | "lte" | "like";
+
 export interface FilterNode {
   key: string;
   title: string;
   value?: string;
+  operator?: FilterOperator;
   children?: FilterNode[];
 }
 

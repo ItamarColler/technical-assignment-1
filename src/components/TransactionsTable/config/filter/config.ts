@@ -5,11 +5,14 @@ export const TRANSACTION_FILTERS: FilterNode[] = [
   { key: "network", title: "Network" },
   { key: "buyCurrency", title: "Buy Currency" },
   { key: "sellCurrency", title: "Sell Currency" },
+];
+
+export const ADVANCED_FILTERS: FilterNode[] = [
   { key: "feeCurrency", title: "Fee Currency" },
 ];
 
 export const SEARCH_CONFIG = {
-  placeholder: "Search by comment, address…",
+  placeholder: "Search by address, hash, token, comment…",
   debounceMs: 300,
 } as const;
 

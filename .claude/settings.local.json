@@ -10,7 +10,8 @@
       "Bash(git add *)",
       "Bash(git commit *)",
       "Bash(xargs grep -l \"FilterPanel\\\\|FilterBar\")",
-      "Bash(bunx tsc *)"
+      "Bash(bunx tsc *)",
+      "Bash(git push *)"
     ]
   }
 }

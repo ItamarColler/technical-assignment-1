@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { FilterX, Search, X } from "lucide-react";
+import { ChevronDown, ChevronUp, FilterX, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Select,
   SelectContent,
@@ -15,6 +16,7 @@ import type { FilterNode, FilterDTO } from "@/api/lib/filter/filter.types";
 
 interface FilterPanelProps {
   filters: FilterNode[];
+  advancedFilters?: FilterNode[];
   filterOptions: Record<string, string[]>;
   params: FilterDTO;
   setFilter: (filter: FilterNode) => void;
@@ -23,11 +25,19 @@ interface FilterPanelProps {
   setSearchTerm: (val: string) => void;
   searchPlaceholder?: string;
   hasActive: boolean;
+  dateFrom?: string;
+  dateTo?: string;
+  setDateFrom?: (val: string) => void;
+  setDateTo?: (val: string) => void;
+  filtersOpen?: boolean;
+  onFiltersOpenChange?: (open: boolean) => void;
+  onAdvancedOpenChange?: (open: boolean) => void;
 }
 
 
 export function FilterPanel({
   filters,
+  advancedFilters,
   filterOptions,
   params,
   setFilter,
@@ -36,10 +46,21 @@ export function FilterPanel({
   setSearchTerm,
   searchPlaceholder = "Search…",
   hasActive,
+  dateFrom = "",
+  dateTo = "",
+  setDateFrom,
+  setDateTo,
+  filtersOpen = false,
+  onFiltersOpenChange,
+  onAdvancedOpenChange,
 }: FilterPanelProps) {
   const [inputValue, setInputValue] = useState(searchTerm);
-  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const activeAdvancedCount = (advancedFilters?.filter(
+    f => params.filters.find(n => n.key === f.key)?.value
+  ).length ?? 0) + (dateFrom ? 1 : 0) + (dateTo ? 1 : 0);
 
   // Sync controlled input when searchTerm resets externally (e.g. clearFilters)
   useEffect(() => {
@@ -85,7 +106,7 @@ export function FilterPanel({
           variant="outline"
           size="sm"
           type="button"
-          onClick={() => setFiltersOpen(v => !v)}
+          onClick={() => onFiltersOpenChange?.(!filtersOpen)}
           className={cn(
             "sm:hidden h-7 gap-1.5 text-xs shrink-0",
             hasActive
@@ -99,56 +120,37 @@ export function FilterPanel({
         </Button>
       </div>
 
-      {/* Row 2: dropdowns — always on sm+, toggle-controlled on mobile */}
+      {/* Row 2: dropdowns + date range — always on sm+, toggle-controlled on mobile */}
       <div className={cn(
         "flex-wrap items-center gap-2",
         filtersOpen ? "flex" : "hidden sm:flex"
       )}>
-        {filters.map(f => {
-          const activeNode = params.filters.find(n => n.key === f.key);
-          const activeValue = activeNode?.value;
-          const options = filterOptions[f.key] ?? [];
+        {filters.map(f => (
+          <FilterSelect key={f.key} f={f} params={params} filterOptions={filterOptions} setFilter={setFilter} />
+        ))}
 
-          return (
-            <Select
-              key={`${f.key}:${activeValue ?? ""}`}
-              defaultValue={activeValue}
-              onValueChange={val => setFilter({ ...f, value: val ?? undefined })}
-            >
-              <SelectTrigger
-                size="sm"
-                className={cn(
-                  "h-7 text-xs min-w-[110px]",
-                  activeValue
-                    ? "border-amber-500/50 text-amber-400"
-                    : "text-muted-foreground"
-                )}
-              >
-                <SelectValue placeholder={f.title} />
-              </SelectTrigger>
-              <SelectContent>
-                {/* Non-clickable empty anchor — visual start-of-list marker */}
-                <SelectItem value="__empty__" disabled className="text-muted-foreground/40 italic text-xs">
-                  —
-                </SelectItem>
-                {activeValue && (
-                  <SelectItem value="">
-                    <span className="text-muted-foreground">Clear filter</span>
-                  </SelectItem>
-                )}
-                {options.length === 0 ? (
-                  <SelectItem value="__no_options__" disabled>
-                    <span className="italic text-muted-foreground">No options</span>
-                  </SelectItem>
-                ) : (
-                  options.map(opt => (
-                    <SelectItem key={opt} value={opt}>{opt}</SelectItem>
-                  ))
-                )}
-              </SelectContent>
-            </Select>
-          );
-        })}
+        {/* Advanced filters toggle */}
+        {((advancedFilters && advancedFilters.length > 0) || !!setDateFrom) && (
+          <Button
+            variant="outline"
+            size="sm"
+            type="button"
+            onClick={() => {
+              const next = !advancedOpen;
+              setAdvancedOpen(next);
+              onAdvancedOpenChange?.(next);
+            }}
+            className={cn(
+              "h-7 gap-1 text-xs",
+              activeAdvancedCount > 0
+                ? "border-amber-500/50 text-amber-400"
+                : "text-muted-foreground"
+            )}
+          >
+            {advancedOpen ? <ChevronUp className="size-3" /> : <ChevronDown className="size-3" />}
+            More{activeAdvancedCount > 0 ? ` (${activeAdvancedCount})` : ""}
+          </Button>
+        )}
 
         <Button
           variant="ghost"
@@ -161,6 +163,81 @@ export function FilterPanel({
           Clear all
         </Button>
       </div>
+
+      {/* Advanced filters panel */}
+      {advancedOpen && (
+        <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-border/50">
+          {advancedFilters?.map(f => (
+            <FilterSelect key={f.key} f={f} params={params} filterOptions={filterOptions} setFilter={setFilter} />
+          ))}
+          <DatePicker
+            value={dateFrom}
+            onChange={val => setDateFrom?.(val)}
+            placeholder="From date"
+          />
+          <span className="text-muted-foreground text-xs shrink-0">—</span>
+          <DatePicker
+            value={dateTo}
+            onChange={val => setDateTo?.(val)}
+            min={dateFrom || undefined}
+            placeholder="To date"
+          />
+        </div>
+      )}
     </div>
+  );
+}
+
+function FilterSelect({
+  f,
+  params,
+  filterOptions,
+  setFilter,
+}: {
+  f: FilterNode;
+  params: FilterDTO;
+  filterOptions: Record<string, string[]>;
+  setFilter: (filter: FilterNode) => void;
+}) {
+  const activeValue = params.filters.find(n => n.key === f.key)?.value;
+  const options = filterOptions[f.key] ?? [];
+
+  return (
+    <Select
+      key={`${f.key}:${activeValue ?? ""}`}
+      defaultValue={activeValue}
+      onValueChange={val => setFilter({ ...f, value: val ?? undefined })}
+    >
+      <SelectTrigger
+        size="sm"
+        className={cn(
+          "h-7 text-xs min-w-[110px]",
+          activeValue
+            ? "border-amber-500/50 text-amber-400"
+            : "text-muted-foreground"
+        )}
+      >
+        <SelectValue placeholder={f.title} />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="__empty__" disabled className="text-muted-foreground/40 italic text-xs">
+          —
+        </SelectItem>
+        {activeValue && (
+          <SelectItem value="">
+            <span className="text-muted-foreground">Clear filter</span>
+          </SelectItem>
+        )}
+        {options.length === 0 ? (
+          <SelectItem value="__no_options__" disabled>
+            <span className="italic text-muted-foreground">No options</span>
+          </SelectItem>
+        ) : (
+          options.map(opt => (
+            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+          ))
+        )}
+      </SelectContent>
+    </Select>
   );
 }

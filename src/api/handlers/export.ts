@@ -1,6 +1,7 @@
 import { filters as filterConfig } from "../lib/filter/transactions/config";
 import { parseQueryParams } from "../lib/validation";
 import { TransactionFilterFactory } from "../lib/filter/transactions/factory";
+import type { FilterNode } from "../lib/filter/filter.types";
 import { TransactionExcelFactory } from "../lib/excel/transactions";
 import type { ExportMetadata } from "../lib/excel/excel.types";
 
@@ -43,10 +44,21 @@ export async function handleExport(req: Request): Promise<Response> {
         filters: {} as Record<string, string | undefined>,
       };
 
-  const filterNodes = filterConfig.flatMap((node) => {
+  const filterNodes: FilterNode[] = filterConfig.flatMap((node) => {
     const value = filters[node.key];
     return value ? [{ ...node, value }] : [];
   });
+
+  const dateFrom = filters["dateFrom"];
+  const dateTo = filters["dateTo"];
+  if (dateFrom) {
+    const ts = new Date(dateFrom).getTime();
+    if (!isNaN(ts)) filterNodes.push({ key: "date", title: "From", value: String(ts), operator: "gte" as const });
+  }
+  if (dateTo) {
+    const ts = new Date(dateTo + "T23:59:59.999Z").getTime();
+    if (!isNaN(ts)) filterNodes.push({ key: "date", title: "To", value: String(ts), operator: "lte" as const });
+  }
 
   try {
     const rows = await TransactionFilterFactory.Instance.queryAll({
@@ -60,8 +72,10 @@ export async function handleExport(req: Request): Promise<Response> {
     const toLabel = (key: string) =>
       key.replace(/([A-Z])/g, " $1").replace(/^./, (c) => c.toUpperCase());
     const filterParts = Object.entries(filters)
-      .filter(([, v]) => Boolean(v))
+      .filter(([k, v]) => Boolean(v) && k !== "dateFrom" && k !== "dateTo")
       .map(([k, v]) => `${toLabel(k)}: ${v}`);
+    if (filters["dateFrom"]) filterParts.push(`From: ${filters["dateFrom"]}`);
+    if (filters["dateTo"]) filterParts.push(`To: ${filters["dateTo"]}`);
     if (searchTerm) filterParts.push(`Search: "${searchTerm}"`);
 
     const now = new Date();

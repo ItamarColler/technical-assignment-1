@@ -28,13 +28,16 @@ export const filters: FilterConfig[] = [
   { key: Fields.buyCurrency, title: "Buy Currency" },
   { key: Fields.sellCurrency, title: "Sell Currency" },
   { key: Fields.feeCurrency, title: "Fee Currency" },
-  { key: Fields.date, title: "Date" },
 ];
 
 export const searchFields: string[] = [
   Fields.comments,
   Fields.senderAddress,
   Fields.receiverAddress,
+  Fields.txHash,
+  Fields.smartContract,
+  Fields.buyToken,
+  Fields.sellToken,
 ];
 
 export const SortFieldsParams: Record<string, string> = {
