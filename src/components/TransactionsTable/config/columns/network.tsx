@@ -1,5 +1,16 @@
-import type React from "react";
+import type { TransactionRow } from "@/api/types";
+import { TooltipRoot, TooltipBase, TooltipContent } from "@/components/ui/tooltip";
 
-export const NetworkCell: React.FC<{ network: string | null }> = ({ network }) => (
-  <span className="text-xs text-muted-foreground">{network ?? "—"}</span>
-);
+export const NetworkCell = ({ network }: Pick<TransactionRow, "network">) => {
+  if (!network) return <span className="text-xs text-muted-foreground">—</span>;
+  return (
+    <TooltipRoot>
+      <TooltipBase.Trigger
+        render={<span className="text-xs text-muted-foreground truncate block cursor-default" />}
+      >
+        {network}
+      </TooltipBase.Trigger>
+      <TooltipContent>{network}</TooltipContent>
+    </TooltipRoot>
+  );
+};

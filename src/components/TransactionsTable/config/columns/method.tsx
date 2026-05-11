@@ -1,5 +1,5 @@
+import type { TransactionRow } from "@/api/types";
 import { cn } from "@/lib/utils";
-import type React from "react";
 
 const METHOD_COLORS: Record<string, string> = {
   buy: "bg-emerald-500/15 text-emerald-400 ring-emerald-500/30",
@@ -10,7 +10,7 @@ const METHOD_COLORS: Record<string, string> = {
 };
 const DEFAULT_COLOR = "bg-violet-500/15 text-violet-400 ring-violet-500/30";
 
-export const MethodCell: React.FC<{ method: string }> = ({ method }) => {
+export const MethodCell = ({ method }: Pick<TransactionRow, "method">) => {
   const cls = METHOD_COLORS[method.toLowerCase()] ?? DEFAULT_COLOR;
   return (
     <span

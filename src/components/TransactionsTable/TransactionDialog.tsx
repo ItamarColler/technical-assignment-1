@@ -25,6 +25,9 @@ export function TransactionDialog({ row, onClose }: TransactionDialogProps) {
   const data = activeRowRef.current
 
   const hasAddresses = data && (data.senderAddress || data.receiverAddress || data.smartContract)
+  const hasBuy  = data && (data.buyAmount != null || data.buyToken != null)
+  const hasSell = data && (data.sellAmount != null || data.sellToken != null)
+  const hasFee  = data && (data.feeAmount != null || data.feeToken != null)
 
   return (
     <Dialog open={row !== null} onOpenChange={(open) => { if (!open) onClose() }}>
@@ -49,34 +52,42 @@ export function TransactionDialog({ row, onClose }: TransactionDialogProps) {
             />
           </div>
 
-          <div className="flex-1 overflow-y-auto px-5 py-5 space-y-4">
+          <div className="flex-1 overflow-y-auto px-5 py-5 grid grid-cols-1 sm:grid-cols-2 gap-4 content-start">
             {data && (
               <>
-                <DialogSection title="Details">
+                <DialogSection title="Details" span={2} innerClassName="grid grid-cols-1 sm:grid-cols-2">
                   <DialogField label="Date" value={formatDate(data.date)} />
                   <DialogField label="Method" value={data.method} />
                   <DialogField label="Network" value={data.network} />
                   <DialogField label="Block Height" value={data.blockHeight} mono />
-                  <DialogField label="Tx Hash" value={data.txHash} mono copyable />
+                  <div className="sm:col-span-2">
+                    <DialogField label="Tx Hash" value={data.txHash} mono copyable />
+                  </div>
                 </DialogSection>
 
-                <DialogSection title="Buy">
-                  <DialogField label="Amount" value={formatAmount(data.buyAmount, data.buyCurrency)} mono />
-                  <DialogField label="Token" value={data.buyToken} mono copyable />
-                </DialogSection>
+                {hasBuy && (
+                  <DialogSection title="Buy" span={hasSell ? 1 : 2}>
+                    <DialogField label="Amount" value={formatAmountOrNull(data.buyAmount, data.buyCurrency)} mono />
+                    <DialogField label="Token" value={data.buyToken} mono copyable />
+                  </DialogSection>
+                )}
 
-                <DialogSection title="Sell">
-                  <DialogField label="Amount" value={formatAmount(data.sellAmount, data.sellCurrency)} mono />
-                  <DialogField label="Token" value={data.sellToken} mono copyable />
-                </DialogSection>
+                {hasSell && (
+                  <DialogSection title="Sell" span={hasBuy ? 1 : 2}>
+                    <DialogField label="Amount" value={formatAmountOrNull(data.sellAmount, data.sellCurrency)} mono />
+                    <DialogField label="Token" value={data.sellToken} mono copyable />
+                  </DialogSection>
+                )}
 
-                <DialogSection title="Fee">
-                  <DialogField label="Amount" value={formatAmount(data.feeAmount, data.feeCurrency)} mono />
-                  <DialogField label="Token" value={data.feeToken} mono copyable />
-                </DialogSection>
+                {hasFee && (
+                  <DialogSection title="Fee" span={hasAddresses ? 1 : 2}>
+                    <DialogField label="Amount" value={formatAmountOrNull(data.feeAmount, data.feeCurrency)} mono />
+                    <DialogField label="Token" value={data.feeToken} mono copyable />
+                  </DialogSection>
+                )}
 
                 {hasAddresses && (
-                  <DialogSection title="Addresses">
+                  <DialogSection title="Addresses" span={hasFee ? 1 : 2}>
                     <DialogField label="Sender" value={data.senderAddress} mono copyable />
                     <DialogField label="Receiver" value={data.receiverAddress} mono copyable />
                     <DialogField label="Smart Contract" value={data.smartContract} mono copyable />
@@ -84,12 +95,9 @@ export function TransactionDialog({ row, onClose }: TransactionDialogProps) {
                 )}
 
                 {data.comments && (
-                  <DialogSection title="Notes">
+                  <DialogSection title="Notes" span={2}>
                     <div className="px-3 py-3 min-h-[72px]">
-                      {
-                        <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{data.comments}</p>
-
-                      }
+                      <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{data.comments}</p>
                     </div>
                   </DialogSection>
                 )}
@@ -102,13 +110,26 @@ export function TransactionDialog({ row, onClose }: TransactionDialogProps) {
   )
 }
 
-function DialogSection({ title, children }: { title: string; children: React.ReactNode }) {
+function DialogSection({
+  title,
+  children,
+  span = 1,
+  innerClassName,
+}: {
+  title: string
+  children: React.ReactNode
+  span?: 1 | 2
+  innerClassName?: string
+}) {
   return (
-    <div>
+    <div className={cn(span === 2 && "sm:col-span-2")}>
       <p className="text-[10px] font-medium tracking-widest uppercase text-muted-foreground mb-2">
         {title}
       </p>
-      <div className="rounded-lg border border-border/60 bg-background/40 divide-y divide-border/40">
+      <div className={cn(
+        "rounded-lg border border-border/60 bg-background/40",
+        innerClassName ?? "divide-y divide-border/40"
+      )}>
         {children}
       </div>
     </div>
@@ -126,26 +147,15 @@ function DialogField({
   mono?: boolean
   copyable?: boolean
 }) {
-  const display = value ?? "—"
-  const isEmpty = !value
+  if (!value) return null
 
   return (
     <div className="grid grid-cols-[6rem_1fr_auto] items-start gap-2 px-3 py-2.5">
       <span className="text-xs text-muted-foreground pt-px">{label}</span>
-      <span
-        className={cn(
-          "text-xs text-foreground min-w-0",
-          mono && "font-mono break-all",
-          isEmpty && "text-muted-foreground/50"
-        )}
-      >
-        {display}
+      <span className={cn("text-xs text-foreground min-w-0", mono && "font-mono break-all")}>
+        {value}
       </span>
-      {copyable && !isEmpty ? (
-        <CopyButton value={display} />
-      ) : copyable ? (
-        <span className="size-4" />
-      ) : null}
+      {copyable ? <CopyButton value={value} /> : null}
     </div>
   )
 }
@@ -170,4 +180,12 @@ function CopyButton({ value }: { value: string }) {
       }
     </button>
   )
+}
+
+function formatAmountOrNull(
+  amount: number | null | undefined,
+  currency: string | null | undefined,
+): string | null {
+  if (amount == null) return null
+  return formatAmount(amount, currency ?? null)
 }

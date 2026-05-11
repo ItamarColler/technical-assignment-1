@@ -8,52 +8,68 @@ import {
   SellAmountCell,
   FeeAmountCell,
   CommentsCell,
+  CurrencyCell,
 } from "./columns";
 
 export const COLUMNS: Cell<TransactionRow>[] = [
   {
     key: "date",
     label: "Date",
-    width: "140px",
+    ctx: { colClassName: "col-date" },
     render: row => <DateCell date={row.date} />,
   },
   {
     key: "method",
     label: "Method",
-    width: "100px",
+    ctx: { colClassName: "w-[95px]" },
     render: row => <MethodCell method={row.method} />,
   },
   {
     key: "network",
     label: "Network",
-    width: "100px",
-    mobileHidden: true,
+    ctx: { colClassName: "w-[90px]", desktopOnly: true },
     render: row => <NetworkCell network={row.network} />,
   },
   {
     key: "buyAmount",
     label: "Buy",
-    width: "160px",
+    ctx: { colClassName: "w-[75px]" },
     render: row => <BuyAmountCell buyAmount={row.buyAmount} buyCurrency={row.buyCurrency} />,
+  },
+  {
+    key: "buyCurrency",
+    label: "Buy Cur.",
+    ctx: { colClassName: "w-[90px]", tabletHidden: true },
+    render: row => <CurrencyCell currency={row.buyCurrency} />,
   },
   {
     key: "sellAmount",
     label: "Sell",
-    width: "160px",
+    ctx: { colClassName: "w-[75px]" },
     render: row => <SellAmountCell sellAmount={row.sellAmount} sellCurrency={row.sellCurrency} />,
+  },
+  {
+    key: "sellCurrency",
+    label: "Sell Cur.",
+    ctx: { colClassName: "w-[90px]", tabletHidden: true },
+    render: row => <CurrencyCell currency={row.sellCurrency} />,
   },
   {
     key: "feeAmount",
     label: "Fee",
-    width: "140px",
-    mobileHidden: true,
+    ctx: { colClassName: "w-[75px]", wideOnly: true },
     render: row => <FeeAmountCell feeAmount={row.feeAmount} feeCurrency={row.feeCurrency} />,
+  },
+  {
+    key: "feeCurrency",
+    label: "Fee Cur.",
+    ctx: { colClassName: "w-[90px]", wideOnly: true },
+    render: row => <CurrencyCell currency={row.feeCurrency} />,
   },
   {
     key: "comments",
     label: "Comments",
-    width: "130px",
-    mobileHidden: true,
+    ctx: { colClassName: "w-[100px]", desktopOnly: true },
     render: row => <CommentsCell comments={row.comments} />,
   },
 ];

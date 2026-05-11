@@ -1,8 +1,20 @@
 import { ArrowDown, ArrowUp, ArrowUpDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SkeletonTable } from "./seketon";
-import type { Cell } from "./types";
+import type { Cell, CellContext } from "./types";
 import type { SortEntry, SortOrder } from "@/api/lib/filter/filter.types";
+
+const colVisibility = (ctx?: CellContext) => cn(
+  ctx?.desktopOnly  && "hidden lg:table-column",
+  ctx?.wideOnly     && "hidden md:table-column",
+  ctx?.tabletHidden && "hidden sm:table-column",
+);
+
+const cellVisibility = (ctx?: CellContext) => cn(
+  ctx?.desktopOnly  && "hidden lg:table-cell",
+  ctx?.wideOnly     && "hidden md:table-cell",
+  ctx?.tabletHidden && "hidden sm:table-cell",
+);
 
 interface DataTableProps<T extends { id: number | string }> {
   columns: Cell<T>[];
@@ -58,13 +70,12 @@ export function DataTable<T extends { id: number | string }>({
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full min-w-[930px] border-collapse text-sm [table-layout:fixed]">
+      <table className="w-full min-w-[465px] sm:min-w-[690px] md:min-w-[890px] lg:min-w-[1080px] border-collapse text-sm [table-layout:fixed]">
         <colgroup>
           {columns.map(col => (
             <col
               key={col.key}
-              style={col.width ? { width: col.width } : undefined}
-              className={col.mobileHidden ? "hidden md:table-column" : undefined}
+              className={cn(colVisibility(col.ctx), col.ctx?.colClassName)}
             />
           ))}
         </colgroup>
@@ -79,8 +90,8 @@ export function DataTable<T extends { id: number | string }>({
                 <th
                   key={col.key}
                   className={cn(
-                    "px-4 py-3 text-left text-xs font-medium tracking-wide select-none transition-all",
-                    col.mobileHidden && "hidden md:table-cell",
+                    "px-2 py-1.5 lg:px-4 lg:py-2 text-left text-xs font-medium tracking-wide select-none transition-all min-h-[40px]",
+                    cellVisibility(col.ctx),
                     isActive
                       ? "text-amber-400 bg-amber-500/10 border-b-2 border-amber-500/60"
                       : "text-muted-foreground"
@@ -104,12 +115,12 @@ export function DataTable<T extends { id: number | string }>({
                       />
                     </button>
 
-                    {/* Remove button — right side, only when active */}
+                    {/* Remove button — right side, only when active; hidden on mobile to avoid accidental taps */}
                     {isActive && (
                       <button
                         type="button"
                         onClick={() => handleRemoveSort(col.key)}
-                        className="opacity-50 hover:opacity-100 hover:text-amber-200 transition-opacity cursor-pointer"
+                        className="hidden sm:inline-flex p-1 -m-1 opacity-50 hover:opacity-100 hover:text-amber-200 transition-opacity cursor-pointer"
                       >
                         <X className="size-3.5" />
                       </button>
@@ -148,9 +159,12 @@ export function DataTable<T extends { id: number | string }>({
                 {columns.map(col => (
                   <td
                     key={col.key}
-                    className={cn("px-4 py-2.5 overflow-hidden", col.mobileHidden && "hidden md:table-cell")}
+                    className={cn(
+                      "px-2 py-1.5 lg:px-4 lg:py-2.5 overflow-hidden cursor-default transition-colors hover:bg-amber-500/10",
+                      cellVisibility(col.ctx),
+                    )}
                   >
-                    {col.render(row)}
+                    {col.render(row, col.ctx ?? {})}
                   </td>
                 ))}
               </tr>

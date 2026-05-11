@@ -1,8 +1,14 @@
-import { formatDate } from "@/lib/formatters";
-import type React from "react";
+import type { TransactionRow } from "@/api/types";
+import { formatDate, formatDateVerbose } from "@/lib/formatters";
+import { TooltipRoot, TooltipBase, TooltipContent } from "@/components/ui/tooltip";
 
-export const DateCell: React.FC<{ date: Date }> = ({ date }) => (
-  <span className="font-mono text-xs text-muted-foreground whitespace-nowrap">
-    {formatDate(date)}
-  </span>
+export const DateCell = ({ date }: Pick<TransactionRow, "date">) => (
+  <TooltipRoot>
+    <TooltipBase.Trigger
+      render={<span className="font-mono text-xs text-muted-foreground whitespace-nowrap cursor-default" />}
+    >
+      {formatDate(date)}
+    </TooltipBase.Trigger>
+    <TooltipContent>{formatDateVerbose(date)}</TooltipContent>
+  </TooltipRoot>
 );

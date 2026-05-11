@@ -28,19 +28,25 @@ export function TransactionsTable() {
     <>
       {/* <Card className="gap-0 py-0"> */}
       <Card >
-        <CardHeader >
-          <FilterPanel
-            filters={TRANSACTION_FILTERS}
-            filterOptions={filterOptions}
-            params={params}
-            setFilter={setFilter}
-            clearFilters={clearFilters}
-            searchTerm={params.searchTerm}
-            setSearchTerm={setSearchTerm}
-            searchPlaceholder={SEARCH_CONFIG.placeholder}
-            hasActive={hasActive}
-          />
-          <ExportButton disabled={isLoading} params={params} exportUrl={API_CONFIG.exportUrl} />
+        <CardHeader>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-3">
+            <div className="flex-1 min-w-0">
+              <FilterPanel
+                filters={TRANSACTION_FILTERS}
+                filterOptions={filterOptions}
+                params={params}
+                setFilter={setFilter}
+                clearFilters={clearFilters}
+                searchTerm={params.searchTerm}
+                setSearchTerm={setSearchTerm}
+                searchPlaceholder={SEARCH_CONFIG.placeholder}
+                hasActive={hasActive}
+              />
+            </div>
+            <div className="shrink-0">
+              <ExportButton disabled={isLoading} params={params} exportUrl={API_CONFIG.exportUrl} />
+            </div>
+          </div>
         </CardHeader>
 
         <CardContent className="p-0 relative">

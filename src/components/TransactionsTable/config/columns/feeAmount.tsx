@@ -1,5 +1,8 @@
+import type { TransactionRow } from "@/api/types";
 import { AmountCell } from "./amountCell";
 
-export const FeeAmountCell = ({ feeAmount, feeCurrency }: { feeAmount: number | null; feeCurrency: string | null }) => (
+type Props = Pick<TransactionRow, "feeAmount" | "feeCurrency">;
+
+export const FeeAmountCell = ({ feeAmount, feeCurrency }: Props) => (
   <AmountCell amount={feeAmount} currency={feeCurrency} colorClass="text-muted-foreground" />
 );

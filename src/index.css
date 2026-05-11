@@ -37,12 +37,26 @@ body::before {
 }
 
 @keyframes spin {
-  from { transform: rotate(0); }
-  to   { transform: rotate(360deg); }
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (prefers-reduced-motion) {
-  *, ::before, ::after {
+  *,
+  ::before,
+  ::after {
     animation: none !important;
+  }
+}
+
+/* Responsive date column width — used via Cell.colClassName */
+@utility col-date {
+  width: 100px;
+  @media (width >= theme(--breakpoint-sm)) {
+    width: 130px;
   }
 }

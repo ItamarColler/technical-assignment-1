@@ -6,3 +6,4 @@ export * from "./sellAmount";
 export * from "./feeAmount";
 export * from "./txHash";
 export * from "./comments";
+export * from "./currency";

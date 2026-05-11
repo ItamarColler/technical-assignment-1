@@ -8,7 +8,9 @@
       "Bash(curl -s \"https://raw.githubusercontent.com/t-yuki/ooxml-xsd/master/sml-workbook.xsd\")",
       "WebSearch",
       "Bash(git add *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(xargs grep -l \"FilterPanel\\\\|FilterBar\")",
+      "Bash(bunx tsc *)"
     ]
   }
 }

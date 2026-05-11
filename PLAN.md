@@ -121,7 +121,29 @@ Render transactions in a table with pagination controls, sort headers, and per-c
 
 Ensure the page is usable on both desktop and mobile viewports using Tailwind v4 responsive utilities.
 
-**Status:** ⬜ Not started
+**Status:** ✅ Complete
+
+#### What was done
+
+| Area | Change |
+|---|---|
+| Table columns | `tabletHidden`, `wideOnly`, `desktopOnly` flags hide/show columns per breakpoint via `Cell<T>.ctx` |
+| Table scroll | `overflow-x-auto` on the table container — horizontal scroll on narrow screens |
+| Transaction dialog | Responsive bento-grid layout — 2-column on ≥ 640 px, single-column on mobile |
+
+#### TransactionDialog responsive refactor
+
+**Files modified:**
+- `src/components/ui/dialog.tsx` — popup width: `max-w-lg sm:max-w-2xl md:max-w-3xl`
+- `src/components/TransactionsTable/TransactionDialog.tsx` — layout + component changes
+
+**Design:** Sections become grid children in a `grid-cols-1 sm:grid-cols-2` content area. Details spans full width (col-span-2); Buy/Sell pair side-by-side; Fee/Addresses pair side-by-side; Notes spans full width. Lone sections expand to full-width automatically via conditional `span` prop.
+
+**Empty field suppression:** `DialogField` returns `null` when value is falsy — no "—" rows. Buy/Sell/Fee sections collapse entirely when all their fields are null (guarded by `hasBuy`/`hasSell`/`hasFee` booleans). `formatAmountOrNull` helper passes `null` to `DialogField` when amount is absent (vs. `formatAmount` which returns the string `"—"`).
+
+**Component API additions:**
+- `DialogSection` — `span?: 1 | 2` (drives `sm:col-span-2`), `innerClassName?: string` (overrides inner div classes for Details inner grid)
+- `DialogField` — early-return guard `if (!value) return null`; copy button always rendered when `copyable` and value is present
 
 ---
 
@@ -276,3 +298,4 @@ Passed as `hasActive` prop — enables "Clear all" to light up when the user has
 | 2026-05-11 | Fixed Excel repair dialogs — XML indentation corruption, missing `<bookViews>`, `<cellStyles>`, `<fileVersion>`, sheet name 31-char overflow |
 | 2026-05-11 | Upgraded export to native Excel Table (TableStyleMedium2, banded rows, AutoFilter, freeze pane, column widths) on branch `feat/excel-interactive-autofilter` |
 | 2026-05-11 | Added export metadata rows (Generated, Filters) above data table; ID column removed from export (DB-only field) |
+| 2026-05-11 | TransactionDialog responsive refactor — bento 2-col grid on wide screens, null field suppression, section collapse when empty |
