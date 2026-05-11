@@ -48,6 +48,7 @@ export const formatAmountCompact = (amount: number | null): string => {
       minimumFractionDigits: 0,
       maximumFractionDigits: digits,
     });
+  if (abs >= 1_000_000_000_000) return fmt(amount / 1_000_000_000_000, 2) + "T";
   if (abs >= 1_000_000_000) return fmt(amount / 1_000_000_000, 2) + "B";
   if (abs >= 1_000_000) return fmt(amount / 1_000_000, 2) + "M";
   if (abs >= 1_000) return fmt(amount / 1_000, 2) + "K";
