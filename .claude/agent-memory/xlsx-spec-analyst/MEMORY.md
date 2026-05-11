@@ -1,0 +1,2 @@
+- [OOXML Spec Authoritative Sources](reference_ooxml_spec_sources.md) — Verified URLs for ECMA-376 XSD schemas, spec downloads, and implementation references
+- [XLSX Namespace and Relationship Type URIs](reference_xlsx_namespace_uris.md) — Exact namespace URIs and relationship type URIs verified from XSD source
